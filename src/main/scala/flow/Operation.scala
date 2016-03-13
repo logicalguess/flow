@@ -10,7 +10,7 @@ sealed trait Operation[+A] extends (() => A) {
   //def map[B](f: A ⇒ B): Operation[B] = Operation.monad.map(this)(f)
   //def flatMap[B](f: A ⇒ Operation[B]): Operation[B] = Operation.monad.bind(this)(f)
 
-  def map[B](f: A ⇒ B): Operation[B] = Operation(f(this.apply()))
+  def map[B](f: A ⇒ B): Operation[B] = Operation(f(apply()))
   def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply())
 }
 
