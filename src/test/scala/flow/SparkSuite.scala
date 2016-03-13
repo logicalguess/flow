@@ -20,6 +20,8 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
     }
 
     val aWords = RDDTransformer[String, String] { rdd => rdd.filter(_.contains("a")) }
+    val bWords = RDDTransformer[String, String] { rdd => rdd.filter(_.contains("b")) }
+
     val countOperation = Transformer[RDD[String], Long] { _.count }
 
     "words" in new TryExecutor {
@@ -32,12 +34,16 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
       val flow = for {
         ctx <- sc
         words <- wordsRDD(ctx)
-        aWords <- aWords(words)
-        count <- countOperation(aWords)
-      }
-        yield count
 
-      execute(flow) shouldBe Success(2)
+        aWords <- aWords(words)
+        countA <- countOperation(aWords)
+
+        bWords <- bWords(words)
+        countB <- countOperation(bWords)
+      }
+        yield (countA, countB)
+
+      execute(flow) shouldBe Success((2, 2))
     }
   }
 }
