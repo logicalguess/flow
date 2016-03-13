@@ -13,7 +13,10 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
 
   "Spark examples" should {
 
-    val sc: Operation[SparkContext] = SparkProvider("test")(LOCAL)
+    val scStart: Operation[SparkContext] = SparkProvider("test")(LOCAL)
+
+    val scStop = Transformer[SparkContext, Unit] { _.stop() }
+
 
     val wordsRDD: SparkOperation[RDD[String]] = SparkOperation[RDD[String]] { sc =>
       sc.makeRDD("There is nothing either good or bad, but thinking makes it so".split(' '))
@@ -25,21 +28,23 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
     val countOperation = Transformer[RDD[String], Long] { _.count }
 
     "words" in new TryExecutor {
-      val operation = sc --> wordsRDD // same as wordsRDD(sc)
+      val operation = scStart --> wordsRDD // same as wordsRDD(sc)
       val result: Try[RDD[String]] = execute(operation)
       result.get.count() shouldBe 12
     }
 
     "letter count" in new TryExecutor {
       val flow = for {
-        ctx <- sc
-        words <- wordsRDD(ctx)
+        sc <- scStart
+        words <- wordsRDD(sc)
 
         aWords <- aWords(words)
         countA <- countOperation(aWords)
 
         bWords <- bWords(words)
         countB <- countOperation(bWords)
+
+        _ <- scStop(sc)
       }
         yield (countA, countB)
 
