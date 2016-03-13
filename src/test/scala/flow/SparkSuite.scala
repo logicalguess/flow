@@ -7,7 +7,7 @@ import spark.{RDDTransformer, LOCAL, SparkProvider, SparkOperation}
 import util.Logging
 import org.scalatest.concurrent.ScalaFutures
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 
 class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
