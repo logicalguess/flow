@@ -14,14 +14,15 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
   "Transformer examples" should {
 
     val transformerIntToString = Transformer[Int, String] { i: Int => i.toString }
-    val transformerStringToString = Transformer[String, String] { s: String => s + "!" }
+    val transformerAppendBang = Transformer[String, String] { s: String => s + "!" }
+    val transformerAppendHash = Transformer[String, String] { s: String => s + "#" }
     val transformerConcatenate = Transformer[(String, String), String] { s: (String, String) => s._1 + s._2 }
 
     "linear" in new DummyExecutor {
 
       val result = for {
         s <- transformerIntToString(3)
-        ss <- transformerStringToString(s)
+        ss <- transformerAppendBang(s)
       } yield ss
 
       execute(result) shouldBe "3!"
@@ -32,13 +33,13 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         for {
           start <- Provider[Int](start)
           s1 <- transformerIntToString(start)
-          s2 <- transformerStringToString(s1)
-          s3 <- transformerStringToString(s1)
+          s2 <- transformerAppendBang(s1)
+          s3 <- transformerAppendHash(s1)
           s4 <- transformerConcatenate(s2, s3)
         } yield s4
       }
 
-      execute(flow(7)) shouldBe Success("7!7!")
+      execute(flow(7)) shouldBe Success("7!7#")
     }
   }
 
