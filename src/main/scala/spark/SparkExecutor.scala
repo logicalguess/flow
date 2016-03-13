@@ -17,11 +17,15 @@ case object SHARED extends SparkProviderType
 
 case class SparkProvider(appName: String) {
   def apply(sparkProviderType: SparkProviderType): Operation[SparkContext] = {
-    Provider[SparkContext] {
-      val sparkConfig = new SparkConf()
-        .setAppName(appName)
-        .setMaster("local[2]")
-      new SparkContext(sparkConfig)
+    sparkProviderType match {
+      case LOCAL =>
+        Provider[SparkContext] {
+          val sparkConfig = new SparkConf()
+            .setAppName(appName)
+            .setMaster("local[2]")
+          new SparkContext(sparkConfig)
+        }
+      case _ => throw new IllegalArgumentException("unsupported spark provider type")
     }
   }
 }
