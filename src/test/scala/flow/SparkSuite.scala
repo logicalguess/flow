@@ -5,11 +5,12 @@ import org.apache.spark.rdd.RDD
 import org.scalatest.{ShouldMatchers, WordSpec}
 import spark.{RDDTransformer, LOCAL, SparkProvider, SparkOperation}
 import util.Logging
+import org.scalatest.concurrent.ScalaFutures
 
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 
-class SparkSuite extends WordSpec with ShouldMatchers with Logging {
+class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
 
   "Spark examples" should {
 
@@ -33,7 +34,9 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
       result.get.count() shouldBe 12
     }
 
-    "letter count" in new TryExecutor {
+    "letter count" in new FutureExecutor {
+      import scala.concurrent.ExecutionContext.Implicits.global
+
       val flow = for {
         sc <- scStart
         words <- wordsRDD(sc)
@@ -44,11 +47,16 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
         bWords <- bWords(words)
         countB <- countOperation(bWords)
 
-        _ <- scStop(sc)
+        //_ <- scStop(sc)
       }
         yield (countA, countB)
 
-      execute(flow) shouldBe Success((2, 2))
+      val futureResult = execute(flow)
+
+      whenReady(futureResult) { result =>
+        scStart().stop()
+        result shouldBe (2, 2)
+      }
     }
   }
 }

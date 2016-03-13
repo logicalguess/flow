@@ -3,6 +3,7 @@ package flow
 import util.Pimpers._
 
 import com.typesafe.scalalogging.LazyLogging
+import scala.concurrent.Future
 import scala.util.Try
 
 /**
@@ -29,5 +30,19 @@ trait TryExecutor extends Executor[Try[_]] with LazyLogging {
       .withFinally {
         logger.debug("After executing operation: " + operation.getClass.getName)
       }
+  }
+}
+
+trait FutureExecutor extends Executor[Future[_]] with LazyLogging {
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  def execute[A](operation: Operation[A]): Future[A] = {
+    implicit lazy val log = logger
+    Future {
+      logger.debug("Before executing operation: " + operation.getClass.getName)
+      operation.apply()
+    }
+      .withErrorLog("Error executing operation: " + operation.getClass.getName)
+
   }
 }
