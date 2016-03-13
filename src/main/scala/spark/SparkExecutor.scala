@@ -1,8 +1,8 @@
 package spark
 
 import com.typesafe.scalalogging.LazyLogging
-import flow.{Executor, Transformer}
-import org.apache.spark.SparkContext
+import flow.{Provider, Operation, Executor, Transformer}
+import org.apache.spark.{SparkConf, SparkContext}
 import util.Pimpers._
 
 import scala.util.Try
@@ -10,6 +10,21 @@ import scala.util.Try
 /**
   * Created by logicalguess on 3/12/16.
   */
+
+sealed trait SparkProviderType
+case object LOCAL extends SparkProviderType
+case object SHARED extends SparkProviderType
+
+case class SparkProvider(appName: String) {
+  def apply(sparkProviderType: SparkProviderType): Operation[SparkContext] = {
+    Provider[SparkContext] {
+      val sparkConfig = new SparkConf()
+        .setAppName(appName)
+        .setMaster("local[2]")
+      new SparkContext(sparkConfig)
+    }
+  }
+}
 
 // A SparkExecutor creates a spark context on the fly and releases it
 trait SparkExecutor extends Executor[Try[_]] with LazyLogging {

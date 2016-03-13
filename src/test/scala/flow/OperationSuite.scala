@@ -4,7 +4,7 @@ import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 
 import scala.util.Success
-import scalaz.syntax.bind._
+//import scalaz.syntax.bind._
 
 class OperationSuite extends WordSpec with ShouldMatchers with Logging {
   trait DummyExecutor extends ExecutorU {

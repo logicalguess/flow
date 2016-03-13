@@ -3,7 +3,7 @@ package flow
 //import scalaz._
 
 
-sealed trait Operation[+A] extends (() => A) {
+sealed trait Operation[A] extends (() => A) {
   //def apply(): A
 
   // This enables out the box map / flatMap / for comprehension support
@@ -12,6 +12,8 @@ sealed trait Operation[+A] extends (() => A) {
 
   def map[B](f: A ⇒ B): Operation[B] = Operation(f(apply()))
   def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply())
+
+  def -->[B] (t: TransformerU[A, B]): Operation[B] = t(this.apply())
 }
 
 
@@ -29,9 +31,12 @@ object Operation {
 //  }
 }
 
-case class Transformer[In, Out](f: In => Out) {
+trait TransformerU[In, Out] {
+  def f: In => Out
   def apply(in: In) = Operation[Out] { f(in) }
 }
+
+case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
 
 object Provider {
   def apply[Out](value: Out) = Operation[Out] { value }
