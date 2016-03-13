@@ -6,15 +6,14 @@ import org.scalatest.{ShouldMatchers, WordSpec}
 import spark.{LOCAL, SparkProvider, SparkOperation}
 import util.Logging
 
+import scala.util.Try
+
 
 class SparkSuite extends WordSpec with ShouldMatchers with Logging {
-  trait DummyExecutor extends ExecutorU {
-    override def execute[A](operation: Operation[A]): A = operation.apply()
-  }
 
   "Spark examples" should {
 
-    "letters" in new DummyExecutor {
+    "letters" in new TryExecutor {
 
       val rdd: SparkOperation[RDD[String]] = SparkOperation[RDD[String]] { sc =>
         sc.makeRDD("There is nothing either good or bad, but thinking makes it so".split(' '))
@@ -22,10 +21,9 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging {
 
       val sc: Operation[SparkContext] = SparkProvider("test")(LOCAL)
 
-      execute(rdd(sc()))
-
-      sc --> rdd
-
+      val operation = sc --> rdd // same as rdd(sc)
+      val result: Try[RDD[String]] = execute(operation)
+      result.get.count() shouldBe 12
     }
   }
 }
