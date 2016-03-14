@@ -13,6 +13,10 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     override def execute[A](operation: Operation[A]): A = operation.apply()
   }
 
+  trait PrintExecutor extends ExecutorU {
+    override def execute[A](operation: Operation[A]): String = operation.toString
+  }
+
   "Implicit examples" should {
 
     val transformerIntToString : Transformer[Int, String] = { i: Int => i.toString }
@@ -50,8 +54,8 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     "diamond" in new TryExecutor {
       def flow(start: Int) = {
         for {
-          start <- Provider[Int](start)
-          s1 <- transformerIntToString(start)
+          startOp <- Provider[Int](start)
+          s1 <- transformerIntToString(startOp)
           s2 <- transformerAppendBang(s1)
           s3 <- transformerAppendHash(s1)
           s4 <- transformerConcatenate(s2, s3)
