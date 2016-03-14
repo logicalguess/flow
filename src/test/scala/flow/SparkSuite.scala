@@ -9,8 +9,16 @@ import org.scalatest.concurrent.ScalaFutures
 
 import scala.util.Try
 
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+
 
 class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
+
+  Logger.getRootLogger.setLevel(Level.WARN)
+  Logger.getLogger("org").setLevel(Level.WARN)
+  Logger.getLogger("akka").setLevel(Level.WARN)
+  Logger.getLogger("spark").setLevel(Level.WARN)
 
   "Spark examples" should {
 

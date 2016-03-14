@@ -36,8 +36,9 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.1.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
 
-  "org.apache.spark" %% "spark-core" % "1.4.0",
-  "org.apache.spark" %% "spark-mllib" % "1.4.0",
+  "org.apache.spark" %% "spark-core" % "1.6.0",
+  "org.apache.spark" %% "spark-mllib" % "1.6.0",
+  "com.databricks" %% "spark-csv" % "1.3.0",
 
   "org.mockito" % "mockito-core" % versions.mockito % "test",
   "org.scalatest" %% "scalatest" % versions.scalatest % "test",
