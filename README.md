@@ -20,8 +20,25 @@
               execute(flow(7)) shouldBe Success("7!7#")
               
               
-              
-              
+#Implicits (functions as operations)
+             
+  "Implicit examples" should {
+
+    val transformerIntToString : Transformer[Int, String] = { i: Int => i.toString }
+    val transformerAppendBang = { s: String => s + "!" }
+    val transformerAppendHash = { s: String => s + "#" }
+    val transformerConcatenate = { s: (String, String) => s._1 + s._2 }
+
+    "linear" in new DummyExecutor {
+      val result = for {
+        s <- transformerIntToString(3)
+        ss <- transformerAppendBang(s)
+      } yield ss
+
+      execute(result) shouldBe "3!"
+    }
+  }
+                
 #Spark examples             
         
   "Spark examples" should {

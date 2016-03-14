@@ -16,7 +16,11 @@ sealed trait Operation[A] extends (() => A) {
   def -->[B] (t: TransformerU[A, B]): Operation[B] = t(this.apply())
 }
 
+object OperationImplicits {
+  implicit def Function0ToOperation[A] (f: => A) = Operation(f)
+  implicit def Function1ToTransformer[In, Out] (f: In => Out) = Transformer(f)
 
+}
 
 object Operation {
   def apply[A](f: => A): Operation[A] = new Operation[A] {

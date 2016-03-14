@@ -1,5 +1,7 @@
 package flow
 
+import flow.OperationImplicits._
+
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 
@@ -11,7 +13,24 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     override def execute[A](operation: Operation[A]): A = operation.apply()
   }
 
-  "Transformer examples" should {
+  "Implicit examples" should {
+
+    val transformerIntToString : Transformer[Int, String] = { i: Int => i.toString }
+    val transformerAppendBang = { s: String => s + "!" }
+    val transformerAppendHash = { s: String => s + "#" }
+    val transformerConcatenate = { s: (String, String) => s._1 + s._2 }
+
+    "linear" in new DummyExecutor {
+      val result = for {
+        s <- transformerIntToString(3)
+        ss <- transformerAppendBang(s)
+      } yield ss
+
+      execute(result) shouldBe "3!"
+    }
+  }
+
+      "Transformer examples" should {
 
     val transformerIntToString = Transformer[Int, String] { i: Int => i.toString }
     val transformerAppendBang = Transformer[String, String] { s: String => s + "!" }
