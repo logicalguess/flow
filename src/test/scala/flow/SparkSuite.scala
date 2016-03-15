@@ -40,7 +40,7 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFut
       result.count() shouldBe 12
     }
 
-    "letter count" in new FutureExecutor {
+    "letter count" in  {
       import scala.concurrent.ExecutionContext.Implicits.global
 
       val flow = for {

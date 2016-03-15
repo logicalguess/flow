@@ -1,17 +1,12 @@
 package flow
 
 import flow.OperationImplicits._
-import flow.future.Transformer
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 
-import scala.util.Success
 //import scalaz.syntax.bind._
 
 class OperationSuite extends WordSpec with ShouldMatchers with Logging {
-  trait DummyExecutor extends ExecutorU {
-    override def execute[A](operation: Operation[A]): A = operation.apply()
-  }
 
   "Implicit examples" should {
 
@@ -20,13 +15,13 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     val transformerAppendHash = { s: String => s + "#" }
     val transformerConcatenate = { s: (String, String) => s._1 + s._2 }
 
-    "linear" in new DummyExecutor {
+    "linear" in  {
       val result = for {
         s <- transformerIntToString(3)
         ss <- transformerAppendBang(s)
       } yield ss
 
-      execute(result) shouldBe "3!"
+      result() shouldBe "3!"
     }
   }
 
@@ -37,19 +32,18 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     val transformerAppendHash = Transformer[String, String] { s: String => s + "#" }
     val transformerConcatenate = Transformer[(String, String), String] { s: (String, String) => s._1 + s._2 }
 
-    "linear" in new DummyExecutor {
+    "linear" in  {
 
       val result = for {
         s <- transformerIntToString(3)
         ss <- transformerAppendBang(s)
       } yield ss
 
-      execute(result) shouldBe "3!"
       result() shouldBe "3!"
 
     }
 
-    "diamond" in new TryExecutor {
+    "diamond" in {
       def flow(start: Int) = {
         for {
           startOp <- Provider[Int](start)
@@ -60,12 +54,12 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         } yield s4
       }
 
-      execute(flow(7)) shouldBe Success("7!7#")
+      flow(7)() shouldBe "7!7#"
     }
   }
 
   "Simple examples" should {
-    "operation as function" in new DummyExecutor {
+    "operation as function" in  {
       val operationInt = Operation { 123 }
       val operationString = Operation { "mama" }
 
@@ -78,10 +72,10 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         together ← operationWithDependencies(i, s)
       } yield together
 
-      execute(merged) shouldBe "123mama"
+      merged() shouldBe "123mama"
     }
 
-    "operation as class" in new DummyExecutor {
+    "operation as class" in  {
       val operationInt = Operation { 123 }
       val operationString = Operation { "mama" }
 
@@ -95,29 +89,29 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         together ← SomeMergedGuy(i, s)()
       } yield together
 
-      execute(merged) shouldBe "123mama"
+      merged() shouldBe "123mama"
     }
 
-    "operation as wrapper" in new DummyExecutor {
+    "operation as wrapper" in  {
       class WrappedOperation {
         def op1 = Operation { 123 }
         def apply() = op1.map(_ * 2)
       }
 
       val operationInt = (new WrappedOperation)()
-      execute(operationInt) shouldBe 246
+      operationInt() shouldBe 246
     }
 
-    "operation as function instance" in new DummyExecutor {
+    "operation as function instance" in  {
       class FunctionOperation extends (() ⇒ Operation[Int]) {
         def apply() = Operation { 123 }
       }
 
       val operationInt = new FunctionOperation
-      execute(operationInt()) shouldBe 123
+      operationInt()() shouldBe 123
     }
 
-    "longer computation" in new DummyExecutor {
+    "longer computation" in  {
       case class Provider1(first: Int, second: Int) {
         def apply() = Operation { first + second }
       }
@@ -135,10 +129,10 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         b = 23
       } yield a - b + summed
 
-      execute(myProvider) shouldBe (100 + 2 + 4)
+      myProvider() shouldBe (100 + 2 + 4)
     }
 
-    "simple fill" in new DummyExecutor {
+    "simple fill" in  {
       case class Provider(first: Int, second: Int) {
         def apply() = Operation { first + second }
       }
@@ -147,10 +141,10 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         p ← Provider(500, second)()
       } yield p
 
-      execute(quiteFilled(250)) shouldBe 750
+      quiteFilled(250)() shouldBe 750
     }
 
-    "bit more complex fill" in new DummyExecutor {
+    "bit more complex fill" in  {
       case class Provider(first: Int, second: Int) {
         def apply() = Operation { first + second }
       }
@@ -160,17 +154,17 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         p2 ← Provider(first, 100)()
       } yield p1 + p2
 
-      execute(harder(-500, -100)) shouldBe 0
+      harder(-500, -100)() shouldBe 0
 
       val another = for {
         x ← harder(-500, -100)
         y ← Provider(3, 7)()
       } yield x + y
 
-      execute(another) shouldBe 10
+      another() shouldBe 10
     }
 
-    "generic operation should compile" in new DummyExecutor {
+    "generic operation should compile" in  {
       case class Generic[A]() {
         def apply() = Operation { 555 }
       }
@@ -184,7 +178,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
   }
 
   "Advanced examples" should {
-    "Partial graph fill" in new DummyExecutor {
+    "Partial graph fill" in  {
       val IProduceInt = Operation { 666 }
 
       case class ITake3Arguments(first: Int, second: Boolean, third: String) {
@@ -197,10 +191,10 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         m ← ITake3Arguments(i, second, "mama")()
       } yield m
 
-      execute(firstHoleFilled(false)) shouldBe "666falsemama"
+      firstHoleFilled(false)() shouldBe "666falsemama"
     }
 
-    "Mutating operation (prehaps for that dynamic case on whiteboard?)" in new DummyExecutor {
+    "Mutating operation (prehaps for that dynamic case on whiteboard?)" in  {
       val IProduceInt = Operation { 10 }
 
       import scala.collection.mutable._
@@ -218,9 +212,9 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         r ← (new DynamicOperation(i, xs))()
       } yield r
 
-      execute(dynamicOperation) shouldBe 10 + 0
+      dynamicOperation() shouldBe 10 + 0
       xs += "test"
-      execute(dynamicOperation) shouldBe 10 + 4
+      dynamicOperation() shouldBe 10 + 4
     }
 
   }
@@ -233,7 +227,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     // - you can use value from operation1 in operation2, if it was needed, i.e. ...b <- operation2(a)
     // - first problem stops the computation. i.e. if operation2 died (exception), operation3 would not apply
     // - hence is not parallelizable (because next steps may depend on previous)
-    "Monad" in new DummyExecutor {
+    "Monad" in  {
       val operation1 = Operation { 1 }
       val operation2 = Operation { 2 }
       val operation3 = Operation { 3 }
@@ -246,14 +240,14 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
         c ← operation3
       } yield a + b + c
 
-      execute(sumUp) shouldBe (1 + 2 + 3)
+      sumUp() shouldBe (1 + 2 + 3)
     }
 
     // Applicatives are less common but just as useful as monads.
     // - the operations are independent
     // - all computations apply, i.e. if operation2 dies (exception), operation 1 and 3 would apply
     // - hence is parallelizable - there is no dependency on context (no `previous step`)
-//    "Applicative" in new DummyExecutor {
+//    "Applicative" in  {
 //      val operation1 = Operation { 1 }
 //      val operation2 = Operation { 2 }
 //      val operation3 = Operation { 3 }
@@ -265,8 +259,8 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
 //      // more compact, scalaZ style
 //      val sumUpZ = (operation1 ⊛ operation2 ⊛ operation3) { case (a, b, c) ⇒ a + b + c }
 //
-//      execute(sumUp) shouldBe (1 + 2 + 3)
-//      execute(sumUpZ) shouldBe (1 + 2 + 3)
+//      sumUp) shouldBe (1 + 2 + 3)
+//      sumUpZ) shouldBe (1 + 2 + 3)
 //    }
   }
 }
