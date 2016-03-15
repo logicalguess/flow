@@ -13,7 +13,7 @@ sealed trait Operation[A] extends (() => A) {
   def map[B](f: A ⇒ B): Operation[B] = Operation(f(apply()))
   def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply())
 
-  def -->[B] (t: TransformerU[A, B]): Operation[B] = t(this.apply())
+  def -->[B] (t: TransformerU[A, B]): Operation[B] = t(apply())
 }
 
 object OperationImplicits {

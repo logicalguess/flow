@@ -1,7 +1,7 @@
 package flow
 
 import flow.OperationImplicits._
-
+import flow.future.Transformer
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 
@@ -45,6 +45,8 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       } yield ss
 
       execute(result) shouldBe "3!"
+      result() shouldBe "3!"
+
     }
 
     "diamond" in new TryExecutor {

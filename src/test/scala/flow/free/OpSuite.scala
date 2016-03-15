@@ -42,7 +42,9 @@ class OpSuite extends WordSpec with ShouldMatchers with Logging with ScalaFuture
     val hash: Tr[String, String] = f_hash
     val concat: Tr[(String, String), String] = f_concat
 
-    val logic: Free[External, String] = for {
+    type Logic[_] = Free[External, _]
+
+    val logic: Logic[String] = for {
       i <- op
       s <- str(i)
       b <- bang(s)
