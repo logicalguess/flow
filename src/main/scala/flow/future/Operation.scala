@@ -6,9 +6,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 sealed trait Operation[A] extends (() => Future[A]) {
 
   def map[B](f: A ⇒ B): Operation[B] = Operation(apply().map(f))
-  def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(apply().flatMap( a => f(a)()))
+  def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(apply().flatMap(a => f(a)()))
 
-  def -->[B] (t: TransformerU[A, B]): Operation[B] = Operation(apply().flatMap({a => t(a)()}))
+  def -->[B] (t: TransformerU[A, B]): Operation[B] = Operation(apply().flatMap(a => t(a)()))
 }
 
 object OperationImplicits {

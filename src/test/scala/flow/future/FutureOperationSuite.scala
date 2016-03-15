@@ -5,9 +5,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 
-import scala.util.Success
-//import scalaz.syntax.bind._
-
 class FutureOperationSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
 
   "Implicit examples" should {
@@ -29,7 +26,7 @@ class FutureOperationSuite extends WordSpec with ShouldMatchers with Logging wit
     }
   }
 
-      "Transformer examples" should {
+  "Transformer examples" should {
 
     val transformerIntToString = Transformer[Int, String] { i: Int => i.toString }
     val transformerAppendBang = Transformer[String, String] { s: String => s + "!" }
