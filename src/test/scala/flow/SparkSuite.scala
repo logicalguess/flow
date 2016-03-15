@@ -7,8 +7,6 @@ import spark.{RDDTransformer, LOCAL, SparkProvider, SparkOperation}
 import util.Logging
 import org.scalatest.concurrent.ScalaFutures
 
-import scala.util.Try
-
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 
@@ -36,10 +34,10 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFut
 
     val countOperation = Transformer[RDD[String], Long] { _.count }
 
-    "words" in new TryExecutor {
+    "words" in  {
       val operation = scStart --> wordsRDD // same as wordsRDD(sc)
-      val result: Try[RDD[String]] = execute(operation)
-      result.get.count() shouldBe 12
+      val result: RDD[String] = operation()
+      result.count() shouldBe 12
     }
 
     "letter count" in new FutureExecutor {
@@ -55,16 +53,12 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFut
         bWords <- bWords(words)
         countB <- countOperation(bWords)
 
-        //_ <- scStop(sc)
+        _ <- scStop(sc)
       }
         yield (countA, countB)
 
-      val futureResult = execute(flow)
-
-      whenReady(futureResult) { result =>
-        scStart().stop()
-        result shouldBe (2, 2)
-      }
+        //scStart().stop()
+        flow() shouldBe (2, 2)
     }
   }
 }
