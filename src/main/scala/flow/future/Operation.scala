@@ -13,8 +13,7 @@ sealed trait Operation[A] extends (() => Future[A]) {
 
 object OperationImplicits {
   implicit def Function0ToOperation[A] (f: => A) = Operation(Future{f})
-  implicit def Function1ToTransformer[In, Out] (f: In => Out) = {Transformer[In, Out](in => f(in))
-  }
+  implicit def Function1ToTransformer[In, Out] (f: In => Out) = Transformer[In, Out](in => f(in))
 }
 
 object Operation {
