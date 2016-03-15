@@ -8,14 +8,13 @@ sealed trait Operation[A] extends (() => Future[A]) {
   def map[B](f: A ⇒ B): Operation[B] = Operation(apply().map(f))
   def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(apply().flatMap( a => f(a)()))
 
-  def -->[B] (t: TransformerU[A, B]): Operation[B] = Operation(apply().flatMap({a: A => t(a)()}))
+  def -->[B] (t: TransformerU[A, B]): Operation[B] = Operation(apply().flatMap({a => t(a)()}))
 }
 
 object OperationImplicits {
   implicit def Function0ToOperation[A] (f: => A) = Operation(Future{f})
   implicit def Function1ToTransformer[In, Out] (f: In => Out) = {Transformer[In, Out](in => f(in))
   }
-
 }
 
 object Operation {
