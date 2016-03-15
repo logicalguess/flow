@@ -32,6 +32,6 @@ trait TransformerU[In, Out] {
 case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
 
 object Provider {
-  def apply[Out](value: Out) = Operation[Out] { Future{value} }
+  def apply[Out](value: Out) = Operation[Out] { Future {value} }
 }
 
