@@ -36,6 +36,9 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.1.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
 
+  "com.github.mpilquist" %% "simulacrum" % "0.3.0",
+  "org.spire-math" %% "cats" % "0.3.0",
+
   "org.apache.spark" %% "spark-core" % "1.6.0",
   "org.apache.spark" %% "spark-mllib" % "1.6.0",
   "com.databricks" %% "spark-csv" % "1.3.0",
