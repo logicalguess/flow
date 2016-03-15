@@ -13,10 +13,6 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     override def execute[A](operation: Operation[A]): A = operation.apply()
   }
 
-  trait PrintExecutor extends ExecutorU {
-    override def execute[A](operation: Operation[A]): String = operation.toString
-  }
-
   "Implicit examples" should {
 
     val transformerIntToString : Transformer[Int, String] = { i: Int => i.toString }
