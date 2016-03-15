@@ -1,4 +1,4 @@
-package flow
+package flow.free
 
 import cats.free.Free
 
@@ -8,14 +8,11 @@ import cats.free.Free
 
 sealed trait Op[A] extends (() => A) {
   def map[B](f: A ⇒ B): Free[External, B] = Op(f(apply()))
-
   def flatMap[B](f: A => Op[B]): Free[External, B] = Op(f(apply()).apply())
 }
 
 sealed trait External[A]
-
 case class Invoke[A](a: A) extends External[A]
-
 case class InvokeF[In, Out](f: In => Out, in: In) extends External[Out]
 
 object Op {
@@ -24,7 +21,6 @@ object Op {
 
 trait TrU[In, Out] {
   def f: In => Out
-
   def apply(in: In): Free[External, Out] = Free.liftF(InvokeF(f, in))
 }
 

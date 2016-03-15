@@ -1,16 +1,15 @@
-package flow
+package flow.free
 
 import cats._
 import cats.free.Free
 import cats.std.all._
-import flow.OpImplicits._
+import flow.free.OpImplicits._
+import flow.free.OpInterpreters._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
 
 class OpSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
 
@@ -53,31 +52,12 @@ class OpSuite extends WordSpec with ShouldMatchers with Logging with ScalaFuture
 
     "id" in {
 
-      val idInterpreter = new (External ~> Id) {
-        override def apply[A](e: External[A]): Id[A] = e match {
-          case Invoke(a) => a
-          case InvokeF(f, x) => f(x)
-        }
-      }
-
       val result = logic.foldMap(idInterpreter)
 
       result shouldBe "5!5#"
     }
 
     "future" in {
-
-      val futureInterpreter = new (External ~> Future) {
-        override def apply[A](e: External[A]): Future[A] = e match {
-          case Invoke(a) => Future {
-            a
-          }
-          case InvokeF(f, x) => Future {
-            f(x)
-          }
-        }
-      }
-
 
       val futureResult = logic.foldMap(futureInterpreter)
 
@@ -87,19 +67,6 @@ class OpSuite extends WordSpec with ShouldMatchers with Logging with ScalaFuture
     }
 
     "log" in {
-
-      val logInterpreter = new (External ~> Id) {
-        override def apply[A](e: External[A]): Id[A] = e match {
-          case Invoke(a) => {
-            println("value " + a)
-            a
-          }
-          case InvokeF(f, x) => {
-            println("arg " + x)
-            f(x)
-          }
-        }
-      }
       logic.foldMap(logInterpreter)
     }
   }
