@@ -22,7 +22,7 @@ sealed trait Operation[A] extends (() => A) {
 object OperationImplicits {
   implicit def Function0ToOperation[A] (f: => A) = Operation(f)
   implicit def Function1ToTransformer[In, Out] (f: In => Out) = Transformer(f)
-
+  implicit def FunctionToPartialFunction[In, Out] (f: Function[In, Out]): PartialFunction[Any, Any] = { case in: In => f(in)}
 }
 
 object Operation {

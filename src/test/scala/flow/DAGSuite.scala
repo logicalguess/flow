@@ -1,5 +1,6 @@
 package flow
 
+import flow.OperationImplicits._
 import dag.{DAG, Connector, Node}
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
@@ -8,8 +9,6 @@ import util.Logging
 class DAGSuite extends WordSpec with ShouldMatchers with Logging {
 
   "DAG examples" should {
-
-    def pf[X, R](f: Function[X,R]): PartialFunction[Any, Any] = { case x: X => f(x)}
 
     val intToString = { i: Int => i.toString }
     val appendBang = { s: String => s + "!" }
@@ -32,7 +31,7 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
       val graph = new DAG("flow", List(n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
 
       val ops = OperationBuilder(graph,
-        Map("second" -> pf(intToString), "third" -> pf(appendBang), "fourth" -> pf(appendHash), "fifth" -> pf(concat)),
+        Map("second" -> intToString, "third" -> appendBang, "fourth" -> appendHash, "fifth" -> concat),
         Map("first" -> 7))
 
       println(ops("second")())
