@@ -5,7 +5,7 @@ import java.io.Serializable
 import scala.collection.mutable.ArrayBuffer
 
 
-case class Node(label: String, value: () => _) extends Cloneable with Serializable {
+case class Node(label: String) extends Cloneable with Serializable {
 
   private val children = new ArrayBuffer[Node]
   private val parents = new ArrayBuffer[Node]
