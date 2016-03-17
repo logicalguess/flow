@@ -31,7 +31,7 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
       val c5 = Connector("fourth", "fifth")
 
       val graph = DAG.read(new File("src/main/resources/diamond.json"))
-      
+
       val ops = OperationBuilder(graph,
         Map("second" -> intToString, "third" -> appendBang, "fourth" -> appendHash, "fifth" -> concat),
         Map("first" -> 7))

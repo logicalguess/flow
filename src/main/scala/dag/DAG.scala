@@ -8,9 +8,7 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 case class DAG(name: String,
                nodes: List[Node],
-               connectors: List[Connector],
-               resumable: Boolean = false,
-               priority: Int = 1
+               connectors: List[Connector]
                      ) extends Cloneable with Serializable {
 
 

@@ -1,7 +1,5 @@
 {
   "name": "flow",
-  "resumable": false,
-  "priority": 1,
   "nodes": [
     {
       "label": "first"
