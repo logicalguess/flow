@@ -11,7 +11,7 @@ case class Node(label: String, value: () => _) extends Cloneable with Serializab
   private val parents = new ArrayBuffer[Node]
   var completed = false
 
-  def addConnectorTo(node: Node) {value.
+  def addConnectorTo(node: Node) {
     if (!children.contains(node)) {
       children += node
     }
