@@ -41,7 +41,6 @@ class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFut
     }
 
     "letter count" in  {
-      import scala.concurrent.ExecutionContext.Implicits.global
 
       val flow = for {
         sc <- scStart
