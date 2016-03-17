@@ -77,7 +77,9 @@ object OperationBuilder {
       if (!ops.contains(label)) {
 
         if (node.isRoot) {
-          ops(label) = Root(values(label))
+          val value = values(label)
+          println(value.getClass)
+          ops(label) = /*if (value.isInstanceOf[Function[_, _]])*/ Operation(value) //else Root(value)
         }
         else {
           val deps = node.getParentLabels collect ops
