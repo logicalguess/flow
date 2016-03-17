@@ -34,6 +34,10 @@ case class DAG(name: String,
     getNodes.filter(x => x.isRoot)
   }
 
+  def getLeaves: ListBuffer[Node] = {
+    getNodes.filter(x => x.isLeaf)
+  }
+
   def addNode(node: Node): Node = {
     var retValue: Node = null
     if (this.nodeMap.containsKey(node.label)) {
