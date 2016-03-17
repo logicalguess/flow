@@ -7,10 +7,10 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 
 case class DAG(name: String,
-               resumable: Boolean = false,
-               priority: Int = 1,
                nodes: List[Node],
-               connectors: List[Connector]
+               connectors: List[Connector],
+               resumable: Boolean = false,
+               priority: Int = 1
                      ) extends Cloneable with Serializable {
 
 
