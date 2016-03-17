@@ -50,7 +50,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
           s1 <- transformerIntToString(startOp)
           s2 <- transformerAppendBang(s1)
           s3 <- transformerAppendHash(s1)
-          s4 <- transformerConcatenate(s2, s3)
+          s4 <- transformerConcatenate(s2, s3) //Seq(s2, s3)
         } yield s4
       }
 

@@ -2,7 +2,6 @@ package flow
 
 //import scalaz._
 
-
 sealed trait Operation[A] extends (() => A) {
   //def apply(): A
 
@@ -38,6 +37,12 @@ object Operation {
 trait TransformerU[In, Out] {
   def f: In => Out
   def apply(in: In) = Operation[Out] { f(in) }
+//  def apply(l: Seq[Any]) = {
+//    l match {
+//      case Seq(a) =>  f((a).asInstanceOf[In])
+//      case Seq(a, b) =>  f((a, b).asInstanceOf[In])
+//    }
+//  }
 }
 
 case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
