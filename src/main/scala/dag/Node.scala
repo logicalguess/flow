@@ -5,13 +5,13 @@ import java.io.Serializable
 import scala.collection.mutable.ArrayBuffer
 
 
-case class Node(label: String, value: Any) extends Cloneable with Serializable {
+case class Node(label: String, value: () => _) extends Cloneable with Serializable {
 
   private val children = new ArrayBuffer[Node]
   private val parents = new ArrayBuffer[Node]
   var completed = false
 
-  def addConnectorTo(node: Node) {
+  def addConnectorTo(node: Node) {value.
     if (!children.contains(node)) {
       children += node
     }
