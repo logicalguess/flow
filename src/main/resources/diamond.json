@@ -1,0 +1,44 @@
+{
+  "name": "flow",
+  "resumable": false,
+  "priority": 1,
+  "nodes": [
+    {
+      "label": "first"
+    },
+    {
+      "label": "second"
+    },
+    {
+      "label": "third"
+    },
+    {
+      "label": "fourth"
+    },
+    {
+      "label": "fifth"
+    }
+  ],
+  "connectors": [
+    {
+      "from": "first",
+      "to": "second"
+    },
+    {
+      "from": "second",
+      "to": "third"
+    },
+    {
+      "from": "second",
+      "to": "fourth"
+    },
+    {
+      "from": "third",
+      "to": "fifth"
+    },
+    {
+      "from": "fourth",
+      "to": "fifth"
+    }
+  ]
+}

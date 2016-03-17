@@ -1,6 +1,6 @@
 package dag
 
-import java.io.Serializable
+import java.io.{File, FileInputStream, Serializable}
 import java.util
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -128,5 +128,17 @@ case class DAG(name: String,
       retValue = TopologicalSorter.sort(node)
     }
     retValue
+  }
+}
+
+object DAG {
+  import org.json4s.jackson.JsonMethods._
+  import org.json4s.DefaultFormats
+  implicit val formats = DefaultFormats
+
+  def read(file: File): DAG = {
+    val stream = new FileInputStream(file.getCanonicalPath)
+    val json = scala.io.Source.fromInputStream(stream).mkString
+    parse(json).extract[DAG]
   }
 }
