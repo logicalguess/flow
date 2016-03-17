@@ -1,6 +1,6 @@
 package spark
 
-import flow.{Provider, Operation}
+import flow.{Root, Operation}
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -15,7 +15,7 @@ case class SparkProvider(appName: String) {
   def apply(sparkProviderType: SparkProviderType): Operation[SparkContext] = {
     sparkProviderType match {
       case LOCAL =>
-        Provider[SparkContext] {
+        Root[SparkContext] {
           val sparkConfig = new SparkConf()
             .setAppName(appName)
             .setMaster("local[2]")

@@ -45,7 +45,7 @@ class TryOperationSuite extends WordSpec with ShouldMatchers with Logging {
     "diamond" in {
       def flow(start: Int) = {
         for {
-          startOp <- Provider[Int](start)
+          startOp <- Root[Int](start)
           s1 <- transformerIntToString(startOp)
           s2 <- transformerAppendBang(s1)
           s3 <- transformerAppendHash(s1)
