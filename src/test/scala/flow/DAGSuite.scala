@@ -2,7 +2,7 @@ package flow
 
 import java.io.File
 
-import dag.{Connector, DAG, Node}
+import dag.{Connector, DAG, Node, Util}
 import flow.OperationImplicits._
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
@@ -12,17 +12,32 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
 
   "DAG examples" should {
     val constant = {7}
-    val intToString = { i: Int => i.toString }
-    val appendBang = { s: String => s + "!" }
-    val appendHash = { s: String => s + "#" }
-    val concat = { s: (String, String) => s._1 + s._2 }
+    val f_str = { i: Int => i.toString }
+    val f_bang = { s: String => s + "!" }
+    val f_hash = { s: String => s + "#" }
+    val f_concat = { s: (String, String) => s._1 + s._2 }
+
+    "function examples" should {
+
+      val logic: String = {
+        val i = constant
+        val s = f_str(i)
+        val b = f_bang(s)
+        val h = f_hash(s)
+        f_concat(b, h)
+      }
+
+      "composition" in {
+        logic shouldBe "7!7#"
+      }
+    }
 
     "diamond in code" in {
-      val n1 = new Node("first")
-      val n2 = new Node("second")
-      val n3 = new Node("third")
-      val n4 = new Node("fourth")
-      val n5 = new Node("fifth")
+      val n1 = Node("first")
+      val n2 = Node("second")
+      val n3 = Node("third")
+      val n4 = Node("fourth")
+      val n5 = Node("fifth")
 
       val c1 = Connector("first", "second")
       val c2 = Connector("second", "third")
@@ -33,7 +48,7 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
       val graph = DAG("flow", List(n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
 
       val ops = OperationBuilder(graph,
-        Map("second" -> intToString, "third" -> appendBang, "fourth" -> appendHash, "fifth" -> concat),
+        Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat),
         Map("first" -> constant))
 
       println(ops("second")())
@@ -47,11 +62,21 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
     "diamond in config" in {
 
       val graph = DAG.read(new File("src/main/resources/diamond.json"))
+
       val ops = OperationBuilder(graph,
-        Map("second" -> intToString, "third" -> appendBang, "fourth" -> appendHash, "fifth" -> concat),
+        Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat),
         Map("first" -> constant))
 
       ops("fifth")() shouldBe "7!7#"
+    }
+
+    "diagram" in {
+
+      val graph = DAG.read(new File("src/main/resources/diamond.json"))
+      println(graph.getRoots(0).print())
+
+      println(Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
+      //println(Util.teachingmachinesDotLink(DAG.dotFormatDiagram(graph)))
     }
   }
 }

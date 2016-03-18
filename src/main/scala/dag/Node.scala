@@ -68,4 +68,9 @@ case class Node(label: String) extends Cloneable with Serializable {
     super.clone
   }
 
+  def print(depth: Int = 0): String = {
+    val deps = getChildren.map("\n" + _.print(depth + 1)).mkString
+    val extra = if (depth > 0) "|- " else ""
+    (1 until depth).map(_ => "|  ").mkString + extra + label + deps
+  }
 }

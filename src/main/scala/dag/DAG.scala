@@ -139,4 +139,12 @@ object DAG {
     val json = scala.io.Source.fromInputStream(stream).mkString
     parse(json).extract[DAG]
   }
+
+  def dotFormatDiagram(graph: DAG): String = {
+    DotFormatter.format(
+      graph.connectors.map(
+        c => (c.from, c.to)
+        )
+    )
+  }
 }

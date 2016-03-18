@@ -8,12 +8,32 @@ import scala.util.Success
 
 class TryOperationSuite extends WordSpec with ShouldMatchers with Logging {
 
+  val f_str = { i: Int => i.toString }
+  val f_bang = { s: String => s + "!" }
+  val f_hash = { s: String => s + "#" }
+  val f_concat = { s: (String, String) => s._1 + s._2 }
+
+  "function examples" should {
+
+    val logic: String = {
+      val i = 7
+      val s = f_str(i)
+      val b = f_bang(s)
+      val h = f_hash(s)
+      f_concat(b, h)
+    }
+
+    "composition" in {
+      logic shouldBe "7!7#"
+    }
+  }
+
   "Implicit examples" should {
 
-    val transformerIntToString: Transformer[Int, String] = { i: Int => i.toString }
-    val transformerAppendBang = { s: String => s + "!" }
-    val transformerAppendHash = { s: String => s + "#" }
-    val transformerConcatenate = { s: (String, String) => s._1 + s._2 }
+    val transformerIntToString: Transformer[Int, String] = f_str
+    val transformerAppendBang = f_bang
+    val transformerAppendHash = f_hash
+    val transformerConcatenate = {f_concat}
 
     "linear" in {
       val result = for {

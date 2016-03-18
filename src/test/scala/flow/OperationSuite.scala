@@ -8,14 +8,34 @@ import util.Logging
 
 class OperationSuite extends WordSpec with ShouldMatchers with Logging {
 
+  val f_str = { i: Int => i.toString }
+  val f_bang = { s: String => s + "!" }
+  val f_hash = { s: String => s + "#" }
+  val f_concat = { s: (String, String) => s._1 + s._2 }
+
+  "function examples" should {
+
+    val logic: String = {
+      val i = 7
+      val s = f_str(i)
+      val b = f_bang(s)
+      val h = f_hash(s)
+      f_concat(b, h)
+    }
+
+    "composition" in {
+      logic shouldBe "7!7#"
+    }
+  }
+
   "Implicit examples" should {
 
-    val transformerIntToString : Transformer[Int, String] = { i: Int => i.toString }
-    val transformerAppendBang = { s: String => s + "!" }
-    val transformerAppendHash = { s: String => s + "#" }
-    val transformerConcatenate = { s: (String, String) => s._1 + s._2 }
+    val transformerIntToString: Transformer[Int, String] = f_str
+    val transformerAppendBang = f_bang
+    val transformerAppendHash = f_hash
+    val transformerConcatenate = f_concat
 
-    "linear" in  {
+    "linear" in {
       val result = for {
         s <- transformerIntToString(3)
         ss <- transformerAppendBang(s)
@@ -25,14 +45,14 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     }
   }
 
-      "Transformer examples" should {
+  "Transformer examples" should {
 
     val transformerIntToString = Transformer[Int, String] { i: Int => i.toString }
     val transformerAppendBang = Transformer[String, String] { s: String => s + "!" }
     val transformerAppendHash = Transformer[String, String] { s: String => s + "#" }
     val transformerConcatenate = Transformer[(String, String), String] { s: (String, String) => s._1 + s._2 }
 
-    "linear" in  {
+    "linear" in {
 
       val result = for {
         s <- transformerIntToString(3)
@@ -50,7 +70,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
           s1 <- transformerIntToString(startOp)
           s2 <- transformerAppendBang(s1)
           s3 <- transformerAppendHash(s1)
-          s4 <- transformerConcatenate(s2, s3) //Seq(s2, s3)
+          s4 <- transformerConcatenate(s2, s3)
         } yield s4
       }
 
@@ -59,12 +79,18 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
   }
 
   "Simple examples" should {
-    "operation as function" in  {
-      val operationInt = Operation { 123 }
-      val operationString = Operation { "mama" }
+    "operation as function" in {
+      val operationInt = Operation {
+        123
+      }
+      val operationString = Operation {
+        "mama"
+      }
 
       val operationWithDependencies =
-        (first: Int, second: String) ⇒ Operation { first.toString + second }
+        (first: Int, second: String) ⇒ Operation {
+          first.toString + second
+        }
 
       val merged = for {
         i ← operationInt
@@ -75,12 +101,18 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       merged() shouldBe "123mama"
     }
 
-    "operation as class" in  {
-      val operationInt = Operation { 123 }
-      val operationString = Operation { "mama" }
+    "operation as class" in {
+      val operationInt = Operation {
+        123
+      }
+      val operationString = Operation {
+        "mama"
+      }
 
       case class SomeMergedGuy(first: Int, second: String) {
-        def apply() = Operation { first.toString + second }
+        def apply() = Operation {
+          first.toString + second
+        }
       }
 
       val merged = for {
@@ -92,32 +124,41 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       merged() shouldBe "123mama"
     }
 
-    "operation as wrapper" in  {
+    "operation as wrapper" in {
       class WrappedOperation {
-        def op1 = Operation { 123 }
+        def op1 = Operation {
+          123
+        }
+
         def apply() = op1.map(_ * 2)
       }
 
-      val operationInt = (new WrappedOperation)()
+      val operationInt = (new WrappedOperation) ()
       operationInt() shouldBe 246
     }
 
-    "operation as function instance" in  {
+    "operation as function instance" in {
       class FunctionOperation extends (() ⇒ Operation[Int]) {
-        def apply() = Operation { 123 }
+        def apply() = Operation {
+          123
+        }
       }
 
       val operationInt = new FunctionOperation
       operationInt()() shouldBe 123
     }
 
-    "longer computation" in  {
+    "longer computation" in {
       case class Provider1(first: Int, second: Int) {
-        def apply() = Operation { first + second }
+        def apply() = Operation {
+          first + second
+        }
       }
 
       case class Provider2(first: String, second: String) {
-        def apply() = Operation { first.length + second.length }
+        def apply() = Operation {
+          first.length + second.length
+        }
       }
 
       val myProvider = for {
@@ -132,9 +173,11 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       myProvider() shouldBe (100 + 2 + 4)
     }
 
-    "simple fill" in  {
+    "simple fill" in {
       case class Provider(first: Int, second: Int) {
-        def apply() = Operation { first + second }
+        def apply() = Operation {
+          first + second
+        }
       }
 
       val quiteFilled = (second: Int) ⇒ for {
@@ -144,9 +187,11 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       quiteFilled(250)() shouldBe 750
     }
 
-    "bit more complex fill" in  {
+    "bit more complex fill" in {
       case class Provider(first: Int, second: Int) {
-        def apply() = Operation { first + second }
+        def apply() = Operation {
+          first + second
+        }
       }
 
       val harder = (first: Int, second: Int) ⇒ for {
@@ -164,25 +209,31 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       another() shouldBe 10
     }
 
-    "generic operation should compile" in  {
+    "generic operation should compile" in {
       case class Generic[A]() {
-        def apply() = Operation { 555 }
+        def apply() = Operation {
+          555
+        }
       }
 
       val z = new Generic[Int]()
       z().map(_.toString)
       z().flatMap(null)
 
-      for { x ← Generic[Int]()() } yield ()
+      for {x ← Generic[Int]()()} yield ()
     }
   }
 
   "Advanced examples" should {
-    "Partial graph fill" in  {
-      val IProduceInt = Operation { 666 }
+    "Partial graph fill" in {
+      val IProduceInt = Operation {
+        666
+      }
 
       case class ITake3Arguments(first: Int, second: Boolean, third: String) {
-        def apply() = Operation { first.toString + second.toString + third.toString }
+        def apply() = Operation {
+          first.toString + second.toString + third.toString
+        }
       }
 
       // also could be another case class
@@ -194,8 +245,10 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
       firstHoleFilled(false)() shouldBe "666falsemama"
     }
 
-    "Mutating operation (prehaps for that dynamic case on whiteboard?)" in  {
-      val IProduceInt = Operation { 10 }
+    "Mutating operation (prehaps for that dynamic case on whiteboard?)" in {
+      val IProduceInt = Operation {
+        10
+      }
 
       import scala.collection.mutable._
       class DynamicOperation(startSum: Int, xs: Buffer[String]) {
@@ -209,7 +262,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
 
       val dynamicOperation = for {
         i ← IProduceInt
-        r ← (new DynamicOperation(i, xs))()
+        r ← (new DynamicOperation(i, xs)) ()
       } yield r
 
       dynamicOperation() shouldBe 10 + 0
@@ -227,10 +280,16 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     // - you can use value from operation1 in operation2, if it was needed, i.e. ...b <- operation2(a)
     // - first problem stops the computation. i.e. if operation2 died (exception), operation3 would not apply
     // - hence is not parallelizable (because next steps may depend on previous)
-    "Monad" in  {
-      val operation1 = Operation { 1 }
-      val operation2 = Operation { 2 }
-      val operation3 = Operation { 3 }
+    "Monad" in {
+      val operation1 = Operation {
+        1
+      }
+      val operation2 = Operation {
+        2
+      }
+      val operation3 = Operation {
+        3
+      }
 
       // we don't use next stuff we from previous computations... it's so that I can show same example with
       // applicative
@@ -247,20 +306,20 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     // - the operations are independent
     // - all computations apply, i.e. if operation2 dies (exception), operation 1 and 3 would apply
     // - hence is parallelizable - there is no dependency on context (no `previous step`)
-//    "Applicative" in  {
-//      val operation1 = Operation { 1 }
-//      val operation2 = Operation { 2 }
-//      val operation3 = Operation { 3 }
-//
-//      val sumUp = Operation.monad.apply3(operation1, operation2, operation3) {
-//        case (a, b, c) ⇒ a + b + c
-//      }
-//
-//      // more compact, scalaZ style
-//      val sumUpZ = (operation1 ⊛ operation2 ⊛ operation3) { case (a, b, c) ⇒ a + b + c }
-//
-//      sumUp) shouldBe (1 + 2 + 3)
-//      sumUpZ) shouldBe (1 + 2 + 3)
-//    }
+    //    "Applicative" in  {
+    //      val operation1 = Operation { 1 }
+    //      val operation2 = Operation { 2 }
+    //      val operation3 = Operation { 3 }
+    //
+    //      val sumUp = Operation.monad.apply3(operation1, operation2, operation3) {
+    //        case (a, b, c) ⇒ a + b + c
+    //      }
+    //
+    //      // more compact, scalaZ style
+    //      val sumUpZ = (operation1 ⊛ operation2 ⊛ operation3) { case (a, b, c) ⇒ a + b + c }
+    //
+    //      sumUp) shouldBe (1 + 2 + 3)
+    //      sumUpZ) shouldBe (1 + 2 + 3)
+    //    }
   }
 }

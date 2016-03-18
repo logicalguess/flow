@@ -31,7 +31,6 @@ class OpSuite extends WordSpec with ShouldMatchers with Logging with ScalaFuture
     "composition" in {
       logic shouldBe "5!5#"
     }
-
   }
 
   "op examples" should {
