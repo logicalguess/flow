@@ -2,9 +2,11 @@ name := "pipeline"
 
 version := "1.0"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.7"
 
 lazy val versions = new {
+  val spray = "1.1.3"
+  val akka = "2.3.9"
   val finatra = "2.1.2"
   val mustache = "0.9.1"
   val logback = "1.0.13"
@@ -36,12 +38,39 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.1.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
 
-  "com.github.mpilquist" %% "simulacrum" % "0.3.0",
+  //"com.typesafe.akka"   %%  "akka-actor"    % versions.akka,
+  //"com.typesafe.akka"   %%  "akka-testkit"  % versions.akka   % "test",
+  //"com.chuusai" %% "shapeless" % "1.2.4",
+
+  "com.twitter.finatra" %% "finatra-http" % versions.finatra,
+  "com.twitter.finatra" %% "finatra-httpclient" % versions.finatra,
+  "com.twitter.finatra" %% "finatra-slf4j" % versions.finatra,
+  "com.twitter.inject" %% "inject-core" % versions.finatra,
+  "com.github.spullara.mustache.java" % "compiler" % versions.mustache,
+  "com.twitter.finatra" %% "finatra-http" % versions.finatra % "test",
+  "com.twitter.finatra" %% "finatra-jackson" % versions.finatra % "test",
+  "com.twitter.inject" %% "inject-server" % versions.finatra % "test",
+  "com.twitter.inject" %% "inject-app" % versions.finatra % "test",
+  "com.twitter.inject" %% "inject-core" % versions.finatra % "test",
+  "com.twitter.inject" %% "inject-modules" % versions.finatra % "test",
+  "com.google.inject.extensions" % "guice-testlib" % versions.guice % "test",
+  "com.twitter.finatra" %% "finatra-http" % versions.finatra % "test" classifier "tests",
+  "com.twitter.inject" %% "inject-server" % versions.finatra % "test" classifier "tests",
+  "com.twitter.inject" %% "inject-app" % versions.finatra % "test" classifier "tests",
+  "com.twitter.inject" %% "inject-core" % versions.finatra % "test" classifier "tests",
+  "com.twitter.inject" %% "inject-modules" % versions.finatra % "test" classifier "tests",
+
+
   "org.spire-math" %% "cats" % "0.3.0",
 
   "org.apache.spark" %% "spark-core" % "1.6.0",
   "org.apache.spark" %% "spark-mllib" % "1.6.0",
   "com.databricks" %% "spark-csv" % "1.3.0",
+
+
+  //"io.spray"            %%  "spray-can"     % versions.spray,
+  //"io.spray"            %%  "spray-routing" % versions.spray,
+  //"io.spray"            %%  "spray-testkit" % versions.spray  % "test",
 
   "org.mockito" % "mockito-core" % versions.mockito % "test",
   "org.scalatest" %% "scalatest" % versions.scalatest % "test",
