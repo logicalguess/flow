@@ -2,11 +2,10 @@ package finatra.service
 
 import javax.inject.{Inject, Singleton}
 
-import dag.{Util, DAG, Connector, Node}
+import dag.{Connector, DAG, Node, Util}
 import finatra.data.DataProvider
 import flow.OperationBuilder
 import flow.OperationImplicits._
-
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 import org.apache.spark.rdd.RDD
@@ -24,13 +23,20 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
   def getRecommendationsForUser(userId: Int, count: Int) = {
 
+    val userIdFn = {userId}
+
+    val sparkContextFn = {sc}
+
     val productsFn = dataProvider.getProductNames
-    val candidatesFn =  { products: Map[Int, String] =>
-      sc.parallelize(products.keys.toSeq)
+
+    val candidatesFn: ((SparkContext, Map[Int, String])) => RDD[Int] = t => t match {
+      case (sc: SparkContext, products: Map[Int, String]) => sc.parallelize(products.keys.toSeq)
     }
-    val mapByIdFn: (RDD[Int] => RDD[(Int, Int)]) = { rdd: RDD[Int] =>
-      rdd.map((userId, _))
+
+    val mapByIdFn: ((Int, RDD[Int])) => RDD[(Int, Int)] =  t => t match {
+      case (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _))
     }
+
     val predictFn = { rdd: RDD[(Int, Int)] =>
       model
         .predict(rdd)
@@ -39,25 +45,28 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         .take(count)
     }
 
-    val fns = predictFn(mapByIdFn(candidatesFn(productsFn)))
+    val fns = predictFn(mapByIdFn(userId, candidatesFn(sparkContextFn, productsFn)))
 
-    //val products: Operation[Map[Int, String]] = productsFn
-
+    val n0 = Node("userId")
     val n1 = Node("products")
     val n2 = Node("candidates")
     val n3 = Node("mapById")
     val n4 = Node("predict")
-
-    val c1 = Connector("products", "candidates")
-    val c2 = Connector("candidates", "mapById")
-    val c3 = Connector("mapById", "predict")
+    val n5 = Node("sc")
 
 
-    val graph = DAG("flow", List(n1, n2, n3, n4), List(c1, c2, c3))
+    val c1 = Connector("sc", "candidates")
+    val c2 = Connector("products", "candidates")
+    val c3 = Connector("userId", "mapById")
+    val c4 = Connector("candidates", "mapById")
+    val c5 = Connector("mapById", "predict")
+
+
+    val graph = DAG("flow", List(n0, n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
 
     val ops = OperationBuilder(graph,
       Map("candidates" -> candidatesFn, "mapById" -> mapByIdFn, "predict" -> predictFn),
-      Map("products" -> productsFn))
+      Map("sc" -> sparkContextFn, "userId" -> userIdFn, "products" -> productsFn))
 
     (ops("predict")().asInstanceOf[Array[Rating]].toList ++ fns, Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
 
