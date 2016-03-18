@@ -151,3 +151,11 @@
         }
       }
     }
+    
+#Interesting projects
+
+[https://github.com/intentmedia/mario](https://github.com/intentmedia/mario)
+
+[https://github.com/springnz/sparkplug](https://github.com/springnz/sparkplug)
+
+[https://github.com/joefrost01/scalaDAGMan](https://github.com/joefrost01/scalaDAGMan)
