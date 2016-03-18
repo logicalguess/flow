@@ -6,12 +6,13 @@ import com.twitter.finatra.http.filters.CommonFilters
 import com.twitter.finatra.http.routing.HttpRouter
 import com.twitter.finatra.logging.filter.{LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.logging.modules.Slf4jBridgeModule
-import finatra.controller.{AssetController, FlowController}
+import finatra.controller.{RecommenderController, FlowController}
+import finatra.module.{RecommenderModule, SparkContextModule}
 
 object FlowServerMain extends FlowServer
 
 class FlowServer extends HttpServer {
-  override def modules = Seq(Slf4jBridgeModule)
+  override def modules = Seq(Slf4jBridgeModule, SparkContextModule, RecommenderModule)
 
   override def configureHttp(router: HttpRouter) {
     router
@@ -19,7 +20,7 @@ class FlowServer extends HttpServer {
       .filter[TraceIdMDCFilter[Request, Response]]
       .filter[CommonFilters]
       .add[FlowController]
-      .add[AssetController]
+      .add[RecommenderController]
   }
 
   override def warmup() {

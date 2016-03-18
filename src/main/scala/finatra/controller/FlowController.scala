@@ -12,7 +12,7 @@ import flow.OperationBuilder
 @Singleton
 class FlowController @Inject()(flowService: FlowService) extends Controller {
 
-  get("/:start") { request: Request =>
+  get("/diamond/:start") { request: Request =>
 
     val view: FlowResult = flowService.runDiamond(request.params("start").toInt)
 

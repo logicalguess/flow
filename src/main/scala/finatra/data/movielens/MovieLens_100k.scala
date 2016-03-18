@@ -1,6 +1,5 @@
 package finatra.data.movielens
 
-import com.logicalguess.data.{DataProvider, WrongInputDataException}
 import finatra.data.DataProvider
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.recommendation.Rating

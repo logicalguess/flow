@@ -11,7 +11,7 @@ import finatra.service.RecommenderService
 @Singleton
 class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.count") recCount: Int) extends Controller {
 
-  get("/api/recommender/:userId") { request: Request =>
+  get("/recommender/:userId") { request: Request =>
     val recommendations = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
     recSvc.getItems(recommendations.toList.map { r => r.product })
       .zip(recommendations.map {r => r.rating})
