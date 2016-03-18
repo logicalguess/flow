@@ -52,8 +52,8 @@ trait TransformerU[In, Out] {
 case class TransformerG(f: PartialFunction[Any, Any]) {
   def apply(ops: Seq[Operation[Any]]): Operation[Any] = Operation[Any] {
     ops match {
-      case Seq(a) =>  f((a()))
-      case Seq(a, b) =>  f((a(), b()))
+      case Seq(a) =>  f(a())
+      case Seq(a, b) =>  f(a(), b())
     }
   }
 }

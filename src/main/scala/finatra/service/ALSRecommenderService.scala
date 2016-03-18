@@ -22,11 +22,12 @@ case class ALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataP
     val products = dataProvider.getProductNames()
     val candidates = sc.parallelize(products.keys.toSeq)
 
-    model
+    val result = model
       .predict(candidates.map((userId, _)))
       .collect
       .sortBy(- _.rating)
       .take(count)
+    (result, "")
   }
 
   def createModel: MatrixFactorizationModel = {
