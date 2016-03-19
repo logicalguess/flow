@@ -45,30 +45,16 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         .take(count)
     }
 
-    val fns = predictFn(mapByIdFn(userId, candidatesFn(sparkContextFn, productsFn)))
+    //val fns = predictFn(mapByIdFn(userId, candidatesFn(sparkContextFn, productsFn)))
 
-    val n0 = Node("userId")
-    val n1 = Node("products")
-    val n2 = Node("candidates")
-    val n3 = Node("mapById")
-    val n4 = Node("predict")
-    val n5 = Node("sc")
-
-
-    val c1 = Connector("sc", "candidates")
-    val c2 = Connector("products", "candidates")
-    val c3 = Connector("userId", "mapById")
-    val c4 = Connector("candidates", "mapById")
-    val c5 = Connector("mapById", "predict")
-
-
-    val graph = DAG("flow", List(n0, n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
+    val graph = DAG("flow", List("userId"), List("sc"), List("products"),
+      List("candidates", "sc", "products"), List("mapById", "userId", "candidates"), List("predict", "mapById"))
 
     val ops = OperationBuilder(graph,
       Map("candidates" -> candidatesFn, "mapById" -> mapByIdFn, "predict" -> predictFn),
       Map("sc" -> sparkContextFn, "userId" -> userIdFn, "products" -> productsFn))
 
-    (ops("predict")().asInstanceOf[Array[Rating]].toList ++ fns, Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
+    (ops("predict")().asInstanceOf[Array[Rating]].toList, Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
 
   }
 

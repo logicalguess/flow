@@ -147,4 +147,16 @@ object DAG {
         )
     )
   }
+
+  def apply(name: String, nodes: List[String]*): DAG = {
+    val ns = for {
+      node <- nodes
+    } yield Node(node.head)
+    val cs = for {
+      node: List[String] <- nodes
+      deps =  node.tail
+      dep <- deps
+    } yield Connector(dep, node.head)
+    new DAG(name, ns.toList, cs.toList)
+  }
 }
