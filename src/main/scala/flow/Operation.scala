@@ -1,21 +1,10 @@
 package flow
 
-import dag.{Connector, Node, DAG}
-
-import scala.collection.mutable.ArrayBuffer
-
-//import scalaz._
+import dag.{Node, DAG}
 
 sealed trait Operation[A] extends (() => A) {
-  //def apply(): A
-
-  // This enables out the box map / flatMap / for comprehension support
-  //def map[B](f: A ⇒ B): Operation[B] = Operation.monad.map(this)(f)
-  //def flatMap[B](f: A ⇒ Operation[B]): Operation[B] = Operation.monad.bind(this)(f)
-
   def map[B](f: A ⇒ B): Operation[B] = Operation(f(apply()))
-  def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply())
-
+  def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply()) //f(apply())
   def -->[B] (t: TransformerU[A, B]): Operation[B] = t(apply())
 }
 
@@ -29,37 +18,32 @@ object Operation {
   def apply[A](f: => A): Operation[A] = new Operation[A] {
     override def apply = f
   }
-
-//  implicit val monad = new Monad[Operation] {
-//    override def bind[A, B](fa: Operation[A])(f: A ⇒ Operation[B]): Operation[B] =
-//      Operation(f(fa.apply()).apply())
-//
-//    override def point[A](a: ⇒ A): Operation[A] = Operation(a)
-//  }
 }
 
 trait TransformerU[In, Out] {
   def f: In => Out
   def apply(in: In) = Operation[Out] { f(in) }
-//  def apply(l: Seq[Any]) = Operation[Out] {
-//    l match {
-//      case Seq(a) =>  f((a).asInstanceOf[In])
-//      case Seq(a, b) =>  f((a, b).asInstanceOf[In])
-//    }
-//  }
 }
 
 case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
 
-object Root {
-  def apply[Out](value: Out) = Operation[Out] { value }
+object LazyOperation {
+  def apply[A](f: => A): Operation[A] = new Operation[A] {
+    lazy val value: A = f
+    override def apply = value
+  }
 }
 
 case class TransformerG(f: PartialFunction[Any, Any]) {
-  def apply(ops: Seq[Operation[Any]]): Operation[Any] = Operation[Any] {
+  def apply(ops: Seq[Operation[Any]]): Operation[Any] = LazyOperation[Any] {
     ops match {
       case Seq(a) =>  f(a())
       case Seq(a, b) =>  f(a(), b())
+      case Seq(a, b, c) =>  f(a(), b(), c())
+      case Seq(a, b, c, d) =>  f(a(), b(), c(), d())
+      case Seq(a, b, c, d, e) =>  f(a(), b(), c(), d(), e())
+      case Seq(a, b, c, d, e, g) =>  f(a(), b(), c(), d(), e(), g())
+      case Seq(a, b, c, d, e, g, h) =>  f(a(), b(), c(), d(), e(), g(), h())
     }
   }
 }
@@ -78,7 +62,7 @@ object OperationBuilder {
 
         if (node.isRoot) {
           val value = values(label)
-          ops(label) = /*if (value.isInstanceOf[Function[_, _]])*/ Operation(value) //else Root(value)
+          ops(label) = Operation(value)
         }
         else {
           val deps = node.getParentLabels collect ops

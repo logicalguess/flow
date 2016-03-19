@@ -13,8 +13,8 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
   "DAG examples" should {
     val constant = {7}
     val f_str = { i: Int => i.toString }
-    val f_bang = { s: String => s + "!" }
-    val f_hash = { s: String => s + "#" }
+    val f_bang = {  s: String =>  s + "!" }
+    val f_hash = { s: String =>  s + "#" }
     val f_concat = { s: (String, String) => s._1 + s._2 }
 
     "function examples" should {
@@ -33,19 +33,23 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
     }
 
     "diamond in code" in {
-      val n1 = Node("first")
-      val n2 = Node("second")
-      val n3 = Node("third")
-      val n4 = Node("fourth")
-      val n5 = Node("fifth")
+//      val n1 = Node("first")
+//      val n2 = Node("second")
+//      val n3 = Node("third")
+//      val n4 = Node("fourth")
+//      val n5 = Node("fifth")
+//
+//      val c1 = Connector("first", "second")
+//      val c2 = Connector("second", "third")
+//      val c3 = Connector("second", "fourth")
+//      val c4 = Connector("third", "fifth")
+//      val c5 = Connector("fourth", "fifth")
+//
+//      val graph = DAG("flow", List(n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
 
-      val c1 = Connector("first", "second")
-      val c2 = Connector("second", "third")
-      val c3 = Connector("second", "fourth")
-      val c4 = Connector("third", "fifth")
-      val c5 = Connector("fourth", "fifth")
-
-      val graph = DAG("flow", List(n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
+      val graph = DAG("flow",
+        List("first"), List("second", "first"), List("third", "second"), List("fourth", "second"),
+        List("fifth", "third", "fourth"))
 
       val ops = OperationBuilder(graph,
         Map("first" -> constant),
