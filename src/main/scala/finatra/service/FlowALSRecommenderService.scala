@@ -27,6 +27,8 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
     val sparkContextFn = {sc}
 
+    val modelFn = {model}
+
     val productsFn = dataProvider.getProductNames
 
     val candidatesFn: ((SparkContext, Map[Int, String])) => RDD[Int] = t => t match {
@@ -37,8 +39,9 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
       case (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _))
     }
 
-    val predictFn = { rdd: RDD[(Int, Int)] =>
-      model
+    val predictFn: ((MatrixFactorizationModel, RDD[(Int, Int)])) => Array[Rating] = t => t match {
+      case (model,  rdd: RDD[(Int, Int)]) =>
+        model
         .predict(rdd)
         .collect
         .sortBy(- _.rating)
@@ -47,12 +50,12 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
     //val fns = predictFn(mapByIdFn(userId, candidatesFn(sparkContextFn, productsFn)))
 
-    val graph = DAG("flow", List("userId"), List("sc"), List("products"),
-      List("candidates", "sc", "products"), List("mapById", "userId", "candidates"), List("predict", "mapById"))
+    val graph = DAG("flow", List("userId"), List("sc"), List("products"), List("model"),
+      List("candidates", "sc", "products"), List("mapById", "userId", "candidates"), List("predict", "model", "mapById"))
 
     val ops = OperationBuilder(graph,
       Map("candidates" -> candidatesFn, "mapById" -> mapByIdFn, "predict" -> predictFn),
-      Map("sc" -> sparkContextFn, "userId" -> userIdFn, "products" -> productsFn))
+      Map("sc" -> sparkContextFn, "userId" -> userIdFn, "products" -> productsFn, "model" -> modelFn))
 
     (ops("predict")().asInstanceOf[Array[Rating]].toList, Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
 

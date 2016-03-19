@@ -1,5 +1,4 @@
-![ ](diamond.png)
-              
+![ ](diamond.png) ![ ](spark.png)              
               
 #Implicits (functions as operations)
              
