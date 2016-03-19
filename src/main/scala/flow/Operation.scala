@@ -49,6 +49,12 @@ trait TransformerU[In, Out] {
 //  }
 }
 
+case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
+
+object Root {
+  def apply[Out](value: Out) = Operation[Out] { value }
+}
+
 case class TransformerG(f: PartialFunction[Any, Any]) {
   def apply(ops: Seq[Operation[Any]]): Operation[Any] = Operation[Any] {
     ops match {
@@ -56,12 +62,6 @@ case class TransformerG(f: PartialFunction[Any, Any]) {
       case Seq(a, b) =>  f(a(), b())
     }
   }
-}
-
-case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
-
-object Root {
-  def apply[Out](value: Out) = Operation[Out] { value }
 }
 
 object OperationBuilder {
@@ -82,7 +82,7 @@ object OperationBuilder {
         }
         else {
           val deps = node.getParentLabels collect ops
-          val op = TransformerG(functions(label)).apply(deps.toList)
+          val op = TransformerG(functions(label))(deps.toList)
           ops(label) = op
         }
       }
