@@ -48,8 +48,9 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
       val graph = DAG("flow", List(n1, n2, n3, n4, n5), List(c1, c2, c3, c4, c5))
 
       val ops = OperationBuilder(graph,
-        Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat),
-        Map("first" -> constant))
+        Map("first" -> constant),
+        Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat))
+
 
       println(ops("second")())
       println(ops("third")())
@@ -64,8 +65,8 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
       val graph = DAG.read(new File("src/main/resources/diamond.json"))
 
       val ops = OperationBuilder(graph,
-        Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat),
-        Map("first" -> constant))
+        Map("first" -> constant),
+        Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat))
 
       ops("fifth")() shouldBe "7!7#"
     }

@@ -65,8 +65,8 @@ object Root {
 }
 
 object OperationBuilder {
-  def apply(graph: DAG, functions: Map[String, PartialFunction[Any, Any]],
-            values: Map[String, Any]): Map[String, Operation[_]] = {
+  def apply(graph: DAG, values: Map[String, Any],
+            functions: Map[String, PartialFunction[Any, Any]]): Map[String, Operation[_]] = {
 
     val ops = collection.mutable.Map[String, Operation[Any]]()
 
@@ -78,7 +78,6 @@ object OperationBuilder {
 
         if (node.isRoot) {
           val value = values(label)
-          println(value.getClass)
           ops(label) = /*if (value.isInstanceOf[Function[_, _]])*/ Operation(value) //else Root(value)
         }
         else {

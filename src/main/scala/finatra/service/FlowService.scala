@@ -40,8 +40,8 @@ class FlowService {
     import flow.OperationImplicits._
 
     val ops = OperationBuilder(graph,
-      Map("int_to_string" -> f_str, "append_bang" -> f_bang, "append_hash" -> f_hash, "concat" -> f_concat),
-      Map("int" -> constant))
+      Map("int" -> constant),
+      Map("int_to_string" -> f_str, "append_bang" -> f_bang, "append_hash" -> f_hash, "concat" -> f_concat))
 
     FlowResult(ops("concat")(), Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
 
