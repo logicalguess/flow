@@ -62,7 +62,7 @@ object OperationBuilder {
 
         if (node.isRoot) {
           val value = values(label)
-          ops(label) = Operation(value)
+          ops(label) = LazyOperation(value)
         }
         else {
           val deps = node.getParentLabels collect ops
