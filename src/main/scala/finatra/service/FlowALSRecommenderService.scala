@@ -2,7 +2,7 @@ package finatra.service
 
 import javax.inject.{Inject, Singleton}
 
-import dag.{Connector, DAG, Node, Util}
+import dag.{DAG, Util}
 import finatra.data.DataProvider
 import flow.OperationBuilder
 import flow.OperationImplicits._
