@@ -3,7 +3,7 @@ package flow
 import java.io.File
 
 import dag.{Connector, DAG, Node, Util}
-import flow.OperationImplicits._
+import util.FunctionImplicits._
 import org.scalatest.{ShouldMatchers, WordSpec}
 import util.Logging
 

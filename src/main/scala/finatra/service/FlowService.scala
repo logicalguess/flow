@@ -5,6 +5,8 @@ import javax.inject.Singleton
 import dag.{Util, DAG, Connector, Node}
 import finatra.views.FlowResult
 import flow.OperationBuilder
+import util.FunctionImplicits._
+
 
 /**
   * Created by logicalguess on 3/18/16.

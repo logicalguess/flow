@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import dag.{DAG, Util}
 import finatra.data.DataProvider
 import flow.OperationBuilder
-import flow.OperationImplicits._
+import util.FunctionImplicits._
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
 import org.apache.spark.rdd.RDD
