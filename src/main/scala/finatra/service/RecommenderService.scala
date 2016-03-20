@@ -9,7 +9,7 @@ import org.apache.spark.mllib.recommendation.Rating
 trait RecommenderService {
   def dataProvider: DataProvider
 
-  def getRecommendationsForUser(userId: Int, count: Int): (Seq[Rating], String)
+  def getRecommendationsForUser(userId: Int, count: Int): (Seq[Rating], Double, String, String)
 
   def getItems(itemIds: List[Int]): List[String] = {
     val products = dataProvider.getProductNames()

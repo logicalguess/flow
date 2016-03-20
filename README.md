@@ -1,6 +1,37 @@
-![ ](diamond.png) ![ ](spark.png)              
+#Recommender Engine FLow
+
+![ ](spark.png) ![ ](recommender.png)    
+         
+    //    val ratings = addRandomLongColumnFn(ratingsFn)
+    //    val model = train(trainingFilterFn(ratings), validationFilterFn(ratings))
+    //    val testRmse = computeRmse(model, testingFilterFn(ratings))
+    
+        val graph = DAG("recommender",
+          List("data"),
+          List("ratings", "data"),
+          List("training", "ratings"),
+          List("validation", "ratings"),
+          List("testing", "ratings"),
+          List("model", "training", "validation"),
+          List("rmse", "model", "testing"))
+    
+    
+        val ops = OperationBuilder(graph,
+          Map("data" -> ratingsFn),
+          Map(
+            "ratings" -> addRandomLongColumnFn _,
+            "training" -> trainingFilterFn _,
+            "validation" -> validationFilterFn _,
+            "testing" -> testingFilterFn _,
+            "model" -> (train _).tupled,
+            "rmse" -> (computeRmse _).tupled
+            )
+          )
+         
               
 #Implicits (functions as operations)
+
+![ ](diamond.png) 
              
       val f_str = { i: Int => i.toString }
       val f_bang = { s: String => s + "!" }

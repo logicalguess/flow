@@ -12,11 +12,11 @@ import finatra.service.RecommenderService
 class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.count") recCount: Int) extends Controller {
 
   get("/recommender/:userId") { request: Request =>
-    val (recommendations, url) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
+    val (recommendations, rmse, url1, url2) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
     val results = recSvc.getItems(recommendations.toList.map { r => r.product })
       .zip(recommendations.map {r => r.rating})
       .map(tuple => (Map("title" -> tuple._1, "rating" -> tuple._2)))
-    Map("recommendations" -> results, "url" -> url)
+    Map("recommendations" -> results, "rmse" -> rmse, "url1" -> url1, "url2" -> url2)
   }
 
 }

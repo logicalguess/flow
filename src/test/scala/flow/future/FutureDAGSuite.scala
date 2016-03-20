@@ -21,7 +21,10 @@ class FutureDAGSuite extends WordSpec with ShouldMatchers with Logging with Scal
     "diamond in code" in {
 
       val graph = DAG("flow",
-        List("first"), List("second", "first"), List("third", "second"), List("fourth", "second"),
+        List("first"),
+        List("second", "first"),
+        List("third", "second"),
+        List("fourth", "second"),
         List("fifth", "third", "fourth"))
 
       val ops = OperationBuilder(graph,
