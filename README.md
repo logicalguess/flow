@@ -1,6 +1,6 @@
 #Recommender Engine FLow
 
-![ ](spark.png) ![ ](recommender.png)    
+![ ](model.png) ![ ](recommend.png)    
          
     //    val ratings = addRandomLongColumnFn(ratingsFn)
     //    val model = train(trainingFilterFn(ratings), validationFilterFn(ratings))
