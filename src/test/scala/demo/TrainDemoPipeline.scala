@@ -8,10 +8,6 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.types._
 import org.apache.spark.{SparkConf, SparkContext}
 
-
-/**
-  * Created by hwilkins on 3/1/16.
-  */
 object TrainDemoPipeline extends App {
   val sparkConfig = new SparkConf()
     .setAppName("Train Demo Pipeline")

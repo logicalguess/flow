@@ -3,7 +3,7 @@ package finatra.service
 import javax.inject.Singleton
 
 import dag.{Util, DAG, Connector, Node}
-import finatra.views.FlowResult
+import finatra.views.DiamondResult
 import flow.OperationBuilder
 import util.FunctionImplicits._
 
@@ -13,7 +13,7 @@ import util.FunctionImplicits._
   */
 
 @Singleton
-class FlowService {
+class DiamondService {
 
   val n1 = Node("int")
   val n2 = Node("int_to_string")
@@ -35,7 +35,7 @@ class FlowService {
   val f_hash = { s: String => s + "#" }
   val f_concat = { s: (String, String) => s._1 + s._2 }
 
-  def runDiamond(start: Int): FlowResult = {
+  def runDiamond(start: Int): DiamondResult = {
 
     val constant = {start}
 
@@ -43,11 +43,12 @@ class FlowService {
 
     val ops = OperationBuilder(graph,
       Map("int" -> constant),
-      Map("int_to_string" -> f_str, "append_bang" -> f_bang, "append_hash" -> f_hash, "concat" -> f_concat))
+      Map("int_to_string" -> f_str,
+        "append_bang" -> f_bang,
+        "append_hash" -> f_hash,
+        "concat" -> f_concat))
 
-    FlowResult(ops("concat")(), Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
-
-
+    DiamondResult(ops("concat")(), Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
   }
 
 }

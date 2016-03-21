@@ -63,8 +63,8 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         "mapById" -> mapByIdFn,
         "predict" -> predictFn))
 
-    (ops("predict")().asInstanceOf[Array[Rating]].toList, rmse,
-      Util.gravizoDotLink(DAG.dotFormatDiagram(graph)), url)
+    (ops("predict")().asInstanceOf[Array[Rating]].toList, rmse, url,
+      Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
 
   }
 
