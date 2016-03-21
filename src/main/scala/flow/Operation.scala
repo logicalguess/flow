@@ -34,7 +34,7 @@ case class Transformer[In, Out](f: In => Out) extends TransformerU[In, Out]
 
 object OperationBuilder {
   def apply(graph: DAG, values: Map[String, Any],
-            functions: Map[String, PartialFunction[Any, Any]]): Map[String, Operation[_]] = {
+            functions: Map[String, Function[Any, Any]]): Map[String, Operation[_]] = {
 
     val ops = collection.mutable.Map[String, Operation[Any]]()
 

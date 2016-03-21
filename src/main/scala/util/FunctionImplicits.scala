@@ -4,7 +4,11 @@ package util
   * Created by logicalguess on 3/19/16.
   */
 object FunctionImplicits {
-  implicit def functionToPartialFunction[In, Out] (f: Function[In, Out]): PartialFunction[Any, Any] = { case in: In => f(in)}
+  implicit def functionToPartialFunction[In, Out] (f: Function[In, Out]): Function[Any, Any] =
+    { case in: In => f(in)}
+  implicit def function2ToPartialFunction[In1, In2, Out] (f: Function2[In1, In2, Out]): Function[Any, Any] =
+    { case in: (In1, In2) => f.tupled(in)}
+
 }
 
 //val f = m _

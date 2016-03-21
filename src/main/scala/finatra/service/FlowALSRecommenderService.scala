@@ -90,12 +90,12 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
     val ops = OperationBuilder(graph,
       Map("data" -> ratingsFn),
       Map(
-        "ratings" -> addRandomLongColumnFn _,
-        "training" -> trainingFilterFn _,
-        "validation" -> validationFilterFn _,
-        "testing" -> testingFilterFn _,
-        "model" -> (train _).tupled,
-        "rmse" -> (computeRmse _).tupled
+        "ratings" -> addRandomLongColumnFn,
+        "training" -> trainingFilterFn,
+        "validation" -> validationFilterFn,
+        "testing" -> testingFilterFn,
+        "model" -> train _,
+        "rmse" -> computeRmse _
         )
       )
 
