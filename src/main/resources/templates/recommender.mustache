@@ -1,10 +1,62 @@
-<h1>Recommended movies:</h1>
-
-{{#results}}
-    {{title}} -- {{rating}}
-{{/results}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8888/assets/semantic/semantic.min.css">
+    <script src="http://localhost:8888/assets/jquery/jquery-1.12.0.min.js"></script>
+    <script src="http://localhost:8888/assets/semantic/semantic.min.js"></script>
+</head>
+<body>
+<h2>Recommended Movies</h2>
+<table class="ui very basic collapsing celled table">
+    <thead>
+    <tr><th>Movie Title</th>
+        <th>Expected Rating</th>
+    </tr></thead>
+    <tbody>
+    <tr>
+        <td>
+            <h4 class="ui image header">
+                <i class="film icon"></i>
+                <div class="content">
+                    The Matrix
+                    <div class="sub header">1998
+                    </div>
+                </div>
+            </h4></td>
+        <td>
+            <div class="ui star rating disabled" data-rating="3" data-max-rating="3"></div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h4 class="ui image header">
+                <i class="film icon"></i>
+                <div class="content">
+                    Soome longer name to show
+                    <div class="sub header">2011
+                    </div>
+                </div>
+            </h4></td>
+        <td>
+            <div class="ui star rating disabled" data-rating="4" data-max-rating="4"></div>
+        </td>
+    </tr>
+    {{markup}}
+    </tbody>
+</table>
 
 <div>
     <img src={{url1}} width="250"/>
     <img src={{url2}} width="250"/>
 </div>
+
+<script>
+    $('.ui.rating').rating();
+</script>
+</body>
+</html>
+
+
+

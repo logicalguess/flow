@@ -6,7 +6,7 @@ import com.twitter.finatra.http.filters.CommonFilters
 import com.twitter.finatra.http.routing.HttpRouter
 import com.twitter.finatra.logging.filter.{LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.logging.modules.Slf4jBridgeModule
-import finatra.controller.{RecommenderController, DiamondController}
+import finatra.controller.{AssetController, RecommenderController, DiamondController}
 import finatra.module.{RecommenderModule, SparkContextModule}
 
 object FlowServerMain extends FlowServer
@@ -19,6 +19,8 @@ class FlowServer extends HttpServer {
       .filter[LoggingMDCFilter[Request, Response]]
       .filter[TraceIdMDCFilter[Request, Response]]
       .filter[CommonFilters]
+      .filter[CorsFilter]
+      .add[AssetController]
       .add[DiamondController]
       .add[RecommenderController]
   }
