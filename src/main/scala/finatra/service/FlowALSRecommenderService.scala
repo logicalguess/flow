@@ -21,7 +21,7 @@ import Functions._
 @Singleton
 case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataProvider) extends RecommenderService {
 
-  val (model, rmse, url) = createModel()
+  val (model, model_duration, rmse, url) = createModel()
 
   def getRecommendationsForUser(userId: Int, count: Int) = {
 
@@ -63,12 +63,13 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         "mapById" -> mapByIdFn,
         "predict" -> predictFn))
 
-    (ops("predict")().asInstanceOf[Array[Rating]].toList, rmse, url,
+    val (recs: List[Rating], duration: Long) = time {ops("predict")().asInstanceOf[Array[Rating]].toList }
+    (recs, duration, model_duration, "%.3f".format(rmse).toDouble, url,
       Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
 
   }
 
-  def createModel(): (MatrixFactorizationModel, Double, String) = {
+  def createModel(): (MatrixFactorizationModel, Long, Double, String) = {
 
     val ratingsFn: RDD[Rating] = dataProvider.getRatings
 
@@ -99,8 +100,17 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         )
       )
 
-    (ops("model")().asInstanceOf[MatrixFactorizationModel], ops("rmse")().asInstanceOf[Double],
+    val (m: MatrixFactorizationModel, duration: Long) = time {ops("model")().asInstanceOf[MatrixFactorizationModel]}
+    (m, duration, ops("rmse")().asInstanceOf[Double],
       Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
+  }
+
+
+  def time[T](thunk: => T): (T, Long) = {
+    val t1 = System.currentTimeMillis
+    val t = thunk
+    val t2 = System.currentTimeMillis
+    (t, t2 - t1)
   }
 }
 

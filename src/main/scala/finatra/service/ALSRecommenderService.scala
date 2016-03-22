@@ -27,7 +27,7 @@ case class ALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataP
       .collect
       .sortBy(- _.rating)
       .take(count)
-    (result, 0, "", "")
+    (result, 0, 0, 0, "", "")
   }
 
   def createModel: MatrixFactorizationModel = {

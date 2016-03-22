@@ -7,6 +7,6 @@ import com.twitter.finatra.response.Mustache
   */
 
 @Mustache("recommender")
-case class RecommenderView(results: List[MovieView], rmse: Double, url1:String, url2: String, markup: String = "")
+case class RecommenderView(results: List[MovieView], duration: Long, rmse: Double, url1:String, url2: String, markup: String = "")
 
 case class MovieView(title: String, rating: Double)

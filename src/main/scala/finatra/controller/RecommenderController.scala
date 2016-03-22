@@ -15,12 +15,12 @@ import finatra.views.{MovieView, RecommenderView}
 class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.count") recCount: Int) extends Controller {
 
   get("/recommender/:userId") { request: Request =>
-    val (recommendations, rmse, url1, url2) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
+    val (recommendations, duration, model_duration, rmse, url1, url2) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
     val results = recSvc.getItems(recommendations.toList.map { r => r.product })
       .zip(recommendations.map {r => r.rating})
       .map(tuple => (MovieView(tuple._1, tuple._2)))
 
-    val view = RecommenderView(results, rmse, url1, url2)
+    val view = RecommenderView(results, duration, rmse, url1, url2)
 
     val header =
       """
@@ -34,7 +34,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |    <script src="http://localhost:8888/assets/semantic/semantic.min.js"></script>
         |</head>
         |<body>
-        |<h2>Recommended Movies</h2>
+        |<h1>Recommended Movies</h1>
         |<table class="ui very basic collapsing celled table">
         |    <thead>
         |    <tr><th>Movie Title</th>
@@ -101,8 +101,57 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
       }
     }.mkString("\n")
 
-    val imgHtml = "<br><br></div><div><img src=" + view.url1 + " width=\"250\"/>\n" +
-      "<img src=" + view.url2 + " width=\"250\"/></div>\n"
+    val imgHtml =
+      s"""
+        |</br>
+        |<h1>Execution Pipelines</h1>
+        |</br>
+        |<div class="ui link cards">
+        |  <div class="card">
+        |    <div class="image">
+        |      <img src="$url1">
+        |    </div>
+        |    <div class="content">
+        |      <div class="header">Model Pipeline</div>
+        |      <div class="meta">
+        |        <a>Feature extraction and model training</a>
+        |      </div>
+        |      <div class="description">
+        |        Executed on startup.
+        |      </div>
+        |    </div>
+        |    <div class="extra content">
+        |    <span class="right floated">
+        |                RMSE: $rmse
+        |    </span>
+        |        <span>
+        |        <i class="wait icon"></i>
+        |        $model_duration ms
+        |      </span>
+        |    </div>
+        |  </div>
+        |  <div class="card">
+        |    <div class="image">
+        |      <img src="$url2">
+        |    </div>
+        |    <div class="content">
+        |      <div class="header">Serving Pipeline</div>
+        |      <div class="meta">
+        |        <span class="date">Uses the model to recommend movies</span>
+        |      </div>
+        |      <div class="description">
+        |        Executed on every recommending request.
+        |      </div>
+        |    </div>
+        |    <div class="extra content">
+        |        <span>
+        |        <i class="wait icon"></i>
+        |        $duration ms
+        |      </span>
+        |    </div>
+        |  </div>
+        |</div>
+      """.stripMargin
 
 
     response.ok.html(header + moviesHtml + tableEnd + imgHtml + footer)
@@ -111,8 +160,11 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
 
   def tilteAndYear(mixed: String) = {
     val start = mixed.lastIndexOf('(')
-    val stop = mixed.lastIndexOf(')')
-    (mixed.substring(0, start), mixed.substring(start + 1, stop))
+    if (start > 1) {
+      val stop = mixed.lastIndexOf(')')
+      (mixed.substring(0, start), mixed.substring(start + 1, stop))
+    }
+    else (mixed, "")
   }
 
 }
