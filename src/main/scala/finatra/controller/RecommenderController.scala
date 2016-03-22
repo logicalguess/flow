@@ -112,7 +112,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |      <img src="$url1">
         |    </div>
         |    <div class="content">
-        |      <div class="header">Model Pipeline</div>
+        |      <div class="header">Learning Pipeline</div>
         |      <div class="meta">
         |        <a>Feature extraction and model training</a>
         |      </div>
@@ -135,7 +135,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |      <img src="$url2">
         |    </div>
         |    <div class="content">
-        |      <div class="header">Serving Pipeline</div>
+        |      <div class="header">Predicting Pipeline</div>
         |      <div class="meta">
         |        <span class="date">Uses the model to recommend movies</span>
         |      </div>
