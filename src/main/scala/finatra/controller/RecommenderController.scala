@@ -38,7 +38,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |<table class="ui very basic collapsing celled table">
         |    <thead>
         |    <tr><th>Movie Title</th>
-        |        <th>Expected Rating</th>
+        |        <th>Predicted Rating</th>
         |    </tr></thead>
         |    <tbody>
       """.stripMargin
@@ -95,7 +95,10 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
       """.stripMargin
 
     val moviesHtml = view.results.map {
-      case MovieView(title, rating) => row1 + title  + row2 + rating + row3 + rating.round + row4 + rating.round + row5
+      case MovieView(title, rating) => {
+        val (t, y) = tilteAndYear(title)
+        row1 + t  + row2 + y + row3 + rating.round + row4 + rating.round + row5
+      }
     }.mkString("\n")
 
     val imgHtml = "<br><br></div><div><img src=" + view.url1 + " width=\"250\"/>\n" +
@@ -106,6 +109,12 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
 
   }
 
+  def tilteAndYear(mixed: String) = {
+    val start = mixed.lastIndexOf('(')
+    val stop = mixed.lastIndexOf(')')
+    (mixed.substring(0, start), mixed.substring(start + 1, stop))
+  }
+
 }
 
 object Test {
@@ -114,9 +123,5 @@ object Test {
 //    val mustache: Mustache  = mf.compile("recommender.mustache");
 //    val view = RecommenderView(List[MovieView](MovieView("titlez", 0.1), MovieView("titley", 0.2)), 0, "", "")
 //    mustache.execute(new PrintWriter(System.out), view).flush();
-//    val wrapped = "\\(.*?)((.*?)\\)".r
-//    val wrapped(r) = "abc (12)"
-//    println(r)
-
   }
 }
