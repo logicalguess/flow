@@ -15,7 +15,7 @@ import finatra.views.{MovieView, RecommenderView}
 class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.count") recCount: Int) extends Controller {
 
   get("/recommender/:userId") { request: Request =>
-    val (recommendations, duration, model_duration, rmse, url1, url2) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
+    val (recommendations, duration, model_duration, feature_duration, rmse, url1, url2, url3) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
     val results = recSvc.getItems(recommendations.toList.map { r => r.product })
       .zip(recommendations.map {r => r.rating})
       .map(tuple => (MovieView(tuple._1, tuple._2)))
@@ -106,7 +106,27 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |</br>
         |<h1>Execution Pipelines</h1>
         |</br>
-        |<div class="ui link cards">
+        |<div class="ui four cards">
+        |  <div class="card">
+        |    <div class="image">
+        |      <img src="$url3">
+        |    </div>
+        |    <div class="content">
+        |      <div class="header">Feature Pipeline</div>
+        |      <div class="meta">
+        |        <a>Feature extraction</a>
+        |      </div>
+        |      <div class="description">
+        |        Executed before runtime.
+        |      </div>
+        |    </div>
+        |    <div class="extra content">
+        |        <span>
+        |        <i class="wait icon"></i>
+        |        $feature_duration ms
+        |      </span>
+        |    </div>
+        |  </div>
         |  <div class="card">
         |    <div class="image">
         |      <img src="$url1">
@@ -114,10 +134,10 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |    <div class="content">
         |      <div class="header">Learning Pipeline</div>
         |      <div class="meta">
-        |        <a>Feature extraction and model training</a>
+        |        <a>Model training</a>
         |      </div>
         |      <div class="description">
-        |        Executed on startup.
+        |        Executed before runtime.
         |      </div>
         |    </div>
         |    <div class="extra content">
@@ -130,7 +150,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |      </span>
         |    </div>
         |  </div>
-        |  <div class="card">
+        |          <div class="card">
         |    <div class="image">
         |      <img src="$url2">
         |    </div>

@@ -47,25 +47,26 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
     val graph = DAG("flow",
       List("userId"),
-      List("sc"),
-      List("products"),
+      List("spark_context"),
+      List("movie_names"),
       List("model"),
-      List("candidates", "sc", "products"),
-      List("mapById", "userId", "candidates"),
-      List("predict", "model", "mapById"))
+      List("candidates", "spark_context", "movie_names"),
+      List("mapped_by_id", "userId", "candidates"),
+      List("predict", "model", "mapped_by_id"))
 
     val ops = OperationBuilder(graph,
-      Map("sc" -> sparkContextFn,
+      Map("spark_context" -> sparkContextFn,
         "userId" -> userIdFn,
-        "products" -> productsFn,
+        "movie_names" -> productsFn,
         "model" -> modelFn),
       Map("candidates" -> candidatesFn,
-        "mapById" -> mapByIdFn,
+        "mapped_by_id" -> mapByIdFn,
         "predict" -> predictFn))
 
     val (recs: List[Rating], duration: Long) = time {ops("predict")().asInstanceOf[Array[Rating]].toList }
-    (recs, duration, model_duration, "%.3f".format(rmse).toDouble, url,
-      Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
+    (recs, duration, model_duration, dataProvider.getDuration().getOrElse(0) ,"%.3f".format(rmse).toDouble, url,
+      Util.gravizoDotLink(DAG.dotFormatDiagram(graph)),
+      dataProvider.getGraph().map(g => Util.gravizoDotLink(DAG.dotFormatDiagram(g))).getOrElse(""))
 
   }
 
@@ -79,19 +80,19 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 //    (model, testRmse)
 
     val graph = DAG("recommender",
-      List("data"),
-      List("ratings", "data"),
-      List("training", "ratings"),
-      List("validation", "ratings"),
-      List("testing", "ratings"),
+      List("ratings"),
+      List("dataset", "ratings"),
+      List("training", "dataset"),
+      List("validation", "dataset"),
+      List("testing", "dataset"),
       List("model", "training", "validation"),
       List("rmse", "model", "testing"))
 
 
     val ops = OperationBuilder(graph,
-      Map("data" -> ratingsFn),
+      Map("ratings" -> ratingsFn),
       Map(
-        "ratings" -> addRandomLongColumnFn,
+        "dataset" -> addRandomLongColumnFn,
         "training" -> trainingFilterFn,
         "validation" -> validationFilterFn,
         "testing" -> testingFilterFn,
