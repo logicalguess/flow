@@ -29,14 +29,16 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
     val sparkContextFn = {sc}
     val modelFn = {model}
     val productsFn = dataProvider.getProductNames
-    val candidatesFn: ((SparkContext, Map[Int, String])) => RDD[Int] = t => t match {
-      case (sc: SparkContext, products: Map[Int, String]) => sc.parallelize(products.keys.toSeq)
+
+    val candidatesFn: (SparkContext, Map[Int, String]) => RDD[Int] = {
+      (sc: SparkContext, products: Map[Int, String]) => sc.parallelize(products.keys.toSeq)
     }
-    val mapByIdFn: ((Int, RDD[Int])) => RDD[(Int, Int)] =  t => t match {
-      case (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _))
+
+    val mapByIdFn: (Int, RDD[Int]) => RDD[(Int, Int)] =  {
+      (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _))
     }
-    val predictFn: ((MatrixFactorizationModel, RDD[(Int, Int)])) => Array[Rating] = t => t match {
-      case (model,  rdd: RDD[(Int, Int)]) =>
+    val predictFn: (MatrixFactorizationModel, RDD[(Int, Int)]) => Array[Rating] = {
+      (model,  rdd: RDD[(Int, Int)]) =>
         model
         .predict(rdd)
         .collect
@@ -96,7 +98,7 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         "training" -> trainingFilterFn,
         "validation" -> validationFilterFn,
         "testing" -> testingFilterFn,
-        "model" -> train _,
+        "model" -> train,
         "rmse" -> computeRmse _
         )
       )
@@ -130,12 +132,17 @@ object Functions {
   }
 
 
-  def addRandomLongColumnFn(rs: RDD[Rating]): RDD[(Long, Rating)]  = {
+//  def addRandomLongColumnFn(rs: RDD[Rating]): RDD[(Long, Rating)]  = {
+//    val rand = new Random()
+//    rs.map { r => (rand.nextInt(10).toLong, r) }
+//  }
+
+  val addRandomLongColumnFn: RDD[Rating] => RDD[(Long, Rating)]  = { rs =>
     val rand = new Random()
     rs.map { r => (rand.nextInt(10).toLong, r) }
   }
 
-  def trainingFilterFn(rs: RDD[(Long, Rating)]): RDD[Rating]  = {
+  val trainingFilterFn: RDD[(Long, Rating)] => RDD[Rating]  = { rs =>
     rs.filter(x => x._1 <= 3)
       .values
       .repartition(numPartitions)
@@ -156,7 +163,7 @@ object Functions {
       .persist
   }
 
-  def train(training: RDD[Rating], validation: RDD[Rating]): MatrixFactorizationModel = {
+  def train: (RDD[Rating], RDD[Rating]) =>  MatrixFactorizationModel = { (validation, training) =>
     val ranks = List(12)
     val lambdas = List(0.1, 10.0)
     val numIters = List(10)

@@ -62,7 +62,7 @@ object Functions {
     ratings
   }
 
-  def toNames(items: RDD[String]): Map[Int, String] = {
+  val toNames: RDD[String] => Map[Int, String] = { items =>
     val pairRDD: RDD[(Int, String)] = items.map(line => line.split("\\|").take(2))
       .map(array => (array(0).toInt, array(1)))
     pairRDD.collect.toMap
