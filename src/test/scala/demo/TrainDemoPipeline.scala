@@ -70,7 +70,7 @@ object TrainDemoPipeline extends App {
   dataset = dataset.select(allCols: _*).filter(nullFilter).persist()
   val Array(trainingDataset, validationDataset) = dataset.randomSplit(Array(0.7, 0.3))
 
-  /*
+
   val continuousFeatureAssembler = VectorAssemblerEstimator(inputCols = continuousFeatures,
     outputCol = "unscaled_continuous_features")
   val continuousFeatureScaler = StandardScalerEstimator(inputCol = "unscaled_continuous_features",
@@ -88,7 +88,7 @@ object TrainDemoPipeline extends App {
     .union(categoricalFeatureIndexers)
     .union(Seq(featureAssembler))
   val featurePipeline = PipelineEstimator(estimators = estimators)
-  val sparkFeaturePipelineModel = featurePipeline.sparkEstimate(dataset)
+  //val sparkFeaturePipelineModel = featurePipeline.sparkEstimate(dataset)
 
   // Step 3. Create our random forest model
   val randomForest = RandomForestRegressionEstimator(featuresCol = "features",
@@ -96,7 +96,7 @@ object TrainDemoPipeline extends App {
     predictionCol = "price_prediction")
 
   // Step 4. Assemble the final pipeline by implicit conversion to MLeap models
-  val sparkPipelineEstimator = new Pipeline().setStages(Array(sparkFeaturePipelineModel, randomForest))
+  /*val sparkPipelineEstimator = new Pipeline().setStages(Array(sparkFeaturePipelineModel, randomForest))
   val sparkPipeline = sparkPipelineEstimator.fit(trainingDataset)
   val mleapPipeline: Transformer = sparkPipeline
 

@@ -14,11 +14,29 @@ object OperationImplicits {
   implicit def Function1ToTransformer[In, Out] (f: In => Out) = Transformer(f)
 }
 
-object Operation {
-  def apply[A](f: => A): Operation[A] = new Operation[A] {
-    lazy val value: A = f
-    override def apply = value
+trait LoggingOperation[A] extends Operation[A] {
+  abstract override def apply(): A = {
+    val res = super.apply()
+    println("Logging > " + res)
+    res
   }
+}
+
+trait LazyOperation[A] extends Operation[A] {
+  lazy val value = super.apply()
+  abstract override def apply(): A = value
+}
+
+class OperationImpl[A](f: => A) extends Operation[A] {
+  override def apply = f
+}
+
+object Operation {
+  def apply[A](f: => A, beLazy: Boolean = true): Operation[A] = beLazy match {
+    case true => new OperationImpl[A](f) with LazyOperation[A] with LoggingOperation[A]
+    case false => new OperationImpl[A](f) with LoggingOperation[A]
+  }
+
   def sequence[A](list: List[Operation[A]]): Operation[List[A]] = list match {
     case Nil => Operation({Nil})
     case x :: xs => x.flatMap(h => sequence(xs).map(t => h :: t))
