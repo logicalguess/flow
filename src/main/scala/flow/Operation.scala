@@ -17,14 +17,14 @@ object OperationImplicits {
 }
 
 trait Named {
-  def label: String = this.getClass().getName()
+  var name: String = "NA"
 }
 
 trait StatsCollector[A] extends Operation[A] { this: Named =>
   import StatsCollector._
   abstract override def apply(): A = {
     val (res, duration) = time(super.apply())
-    println("name = " + label + ", result = " + res + ", duration = " + duration)
+    println("name = " + name + ", result = " + res + ", duration = " + duration)
     res
   }
 }
@@ -88,15 +88,19 @@ object OperationBuilder {
 
         if (node.isRoot) {
           val value = values(label)
-          ops(label) = Operation(value)
+          val op: Operation[Any] = Operation(value)
+          op.asInstanceOf[Named].name = label
+          ops(label) = op
         }
         else {
           val deps = node.getParentLabels collect ops
-          ops(label) = deps.length match {
+          val op: Operation[Any] = deps.length match {
             case 1 => deps.head.map(functions(label))
             case 2 => Operation.map2(deps.head, deps.last)((h, l) => functions(label)(h, l))
             case _ => Operation.sequence(deps.toList).map(ParamTuple(functions(label)))
           }
+          op.asInstanceOf[Named].name = label
+          ops(label) = op
         }
       }
     }
