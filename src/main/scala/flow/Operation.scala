@@ -3,8 +3,6 @@ package flow
 import dag.{DAG, Node}
 import util.ParamTuple
 
-import scala.collection.mutable
-
 sealed trait Operation[A] extends (() => A) {
   def map[B](f: A ⇒ B): Operation[B] = Operation(f(apply()))
   def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply()) //f(apply())
@@ -24,13 +22,14 @@ trait StatsCollector[A] extends Operation[A] { this: Named =>
   import StatsCollector._
   abstract override def apply(): A = {
     val (res, duration) = time(super.apply())
+    stats.putIfAbsent(name, duration)
     println("name = " + name + ", result = " + res + ", duration = " + duration)
     res
   }
 }
 
 object StatsCollector {
-  val stats = mutable.HashMap[String, Any]()
+  val stats = scala.collection.concurrent.TrieMap[String, Any]()
 
   def time[T](thunk: => T): (T, Long) = {
     val t1 = System.currentTimeMillis

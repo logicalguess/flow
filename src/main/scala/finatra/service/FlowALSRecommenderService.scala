@@ -67,7 +67,7 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
     val (recs: List[Rating], duration: Long) = time {ops("predict")().asInstanceOf[Array[Rating]].toList }
     (recs, duration, model_duration, dataProvider.getDuration().getOrElse(0) ,"%.3f".format(rmse).toDouble, url,
-      Util.gravizoDotLink(DAG.dotFormatDiagram(graph)),
+      Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true)),
       dataProvider.getGraph().map(g => Util.gravizoDotLink(DAG.dotFormatDiagram(g))).getOrElse(""))
 
   }
@@ -105,7 +105,7 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
     val (m: MatrixFactorizationModel, duration: Long) = time {ops("model")().asInstanceOf[MatrixFactorizationModel]}
     (m, duration, ops("rmse")().asInstanceOf[Double],
-      Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
+      Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true)))
   }
 
 
@@ -146,7 +146,7 @@ object Functions {
     rs.filter(x => x._1 <= 3)
       .values
       .repartition(numPartitions)
-      .persist
+      .cache
   }
   //val fn: (RDD[(Long, Rating)]) => RDD[Rating] = trainingFilterFn _
 
@@ -154,13 +154,13 @@ object Functions {
     rs.filter(x => x._1 == 4)
       .values
       .repartition(numPartitions)
-      .persist
+      .cache
   }
 
   def testingFilterFn(rs: RDD[(Long, Rating)]): RDD[Rating]  = {
     rs.filter(x => x._1 == 5)
       .values
-      .persist
+      .cache
   }
 
   def train: (RDD[Rating], RDD[Rating]) =>  MatrixFactorizationModel = { (validation, training) =>

@@ -1,6 +1,6 @@
 #Recommender Engine Flow
 
-![ ](model.png) ![ ](recommend.png)    
+![ ](flows.png)   
          
     //    val ratings = addRandomLongColumnFn(ratingsFn)
     //    val model = train(trainingFilterFn(ratings), validationFilterFn(ratings))

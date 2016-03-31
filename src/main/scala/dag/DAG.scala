@@ -140,12 +140,10 @@ object DAG {
     parse(json).extract[DAG]
   }
 
-  def dotFormatDiagram(graph: DAG): String = {
-    DotFormatter.format(
-      graph.connectors.map(
-        c => (c.from, c.to)
-        )
-    )
+  def dotFormatDiagram(graph: DAG, useStats: Boolean = false): String = {
+    val edges: List[(String, String)] = graph.connectors.map(c => (c.from, c.to))
+    //val nodes: List[(String, String)] = graph.nodes.map(n => (n.label, n.label))
+    DotFormatter.format(edges, useStats)
   }
 
   def apply(name: String, nodes: List[String]*): DAG = {

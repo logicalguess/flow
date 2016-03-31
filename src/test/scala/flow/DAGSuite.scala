@@ -56,10 +56,10 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
         Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat))
 
 
-      println(ops("second")())
-      println(ops("third")())
-      println(ops("fourth")())
-      println(ops("fifth")())
+//      println(ops("second")())
+//      println(ops("third")())
+//      println(ops("fourth")())
+//      println(ops("fifth")())
 
       ops("fifth")() shouldBe "7!7#"
     }
@@ -72,7 +72,10 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
         Map("first" -> constant),
         Map("second" -> f_str, "third" -> f_bang, "fourth" -> f_hash, "fifth" -> f_concat))
 
+
       ops("fifth")() shouldBe "7!7#"
+
+      println(Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
     }
 
     "diagram" in {
