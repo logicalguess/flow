@@ -33,7 +33,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     val transformerIntToString: Transformer[Int, String] = f_str
     val transformerAppendBang = f_bang
     val transformerAppendHash = f_hash
-    val transformerConcatenate = f_concat
+    val transformerConcatenate: Transformer[(String, String), String] = f_concat
 
     "linear" in {
       val result = for {
@@ -71,6 +71,55 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
           s2 <- transformerAppendBang(s1)
           s3 <- transformerAppendHash(s1)
           s4 <- transformerConcatenate(s2, s3)
+        } yield s4
+      }
+
+      flow(7)() shouldBe "7!7#"
+    }
+  }
+
+  "Case Class examples" should {
+
+    case class IntToString(i: Int) extends Operation[String] {
+      def apply = { i.toString }
+    }
+
+    case class AppendBang(s: String) extends Operation[String] {
+      def apply = { s + "!" }
+    }
+
+    case class AppendHash(s: String) extends Operation[String] {
+      def apply = { s + "#" }
+    }
+
+    case class Concat(s1: String, s2: String) extends Operation[String] {
+      def apply = { s1 + s2 }
+    }
+
+//    val transfConcat = Transformer[(String, String), String] { s =>
+//      s match {
+//        case (s1, s2) => s1 + s2
+//      }
+//    }
+
+    "linear" in {
+
+      val result = for {
+        s <- IntToString(3)
+        ss <- AppendBang(s)
+      } yield ss
+
+      result() shouldBe "3!"
+    }
+
+    "diamond" in {
+      def flow(start: Int) = {
+        for {
+          startOp <- Operation[Int](start)
+          s1 <- IntToString(startOp)
+          s2 <- AppendBang(s1)
+          s3 <- AppendHash(s1)
+          s4 <- Concat(s2, s3) //Operation(Concat(s2, s3).apply) //transfConcat(s2, s3)
         } yield s4
       }
 
