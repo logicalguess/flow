@@ -5,7 +5,8 @@ package util
   */
 
 object ParamTuple {
-  def apply[A, B](f: (Any => _)): (List[Any] => _) = { args: List[Any] =>
+  def apply[In, Out](ff: (In => Out)): (List[_] => Out) = { args: List[_] =>
+    val f = ff.asInstanceOf[Any => Out]
     args match {
       case List(a) =>  f(a)
       case List(a, b) =>  f(a, b)
@@ -20,14 +21,19 @@ object ParamTuple {
 
 
 object Main {
-  val f : ((Int, String, Int)) =>  Unit = { arg: ((Int, String, Int)) =>
+  val f : ((Int, String, Int)) =>  Int = { arg: ((Int, String, Int)) =>
     println(arg)
     arg._1 + arg._3
   }
 
   def main (args: Array[String] ) {
-    val f_lift = ParamTuple(f.asInstanceOf[(Any => _)])
+    val f_lift: List[_] => Int = ParamTuple(f)
 
-    f_lift(List(1, "b", 3))
+    println(f_lift(List(1, "b", 3)))
   }
 }
+
+//val xs: Seq[Any] = List(1:Int, 2.0:Double, "3":String)
+//val t: (Int,Double,String) = xs.foldLeft((Tuple3[Int,Double,String] _).curried:Any)({
+//case (f,x) => f.asInstanceOf[Any=>Any](x)
+//}).asInstanceOf[(Int,Double,String)]

@@ -3,7 +3,8 @@ package flow
 import dag.{DAG, Node}
 import util.ParamTuple
 
-trait Operation[A] extends (() => A) {
+trait Operation[A] /*extends (() => A)*/ {
+  def apply(): A
   def map[B](f: A ⇒ B): Operation[B] = Operation(f(apply()))
   def flatMap[B](f: A => Operation[B]): Operation[B] = Operation(f(apply()).apply()) //f(apply())
   def -->[B] (t: TransformerU[A, B]): Operation[B] = t(apply())

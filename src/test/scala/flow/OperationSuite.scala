@@ -30,6 +30,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
 
   "Implicit examples" should {
 
+    val constant: Transformer[Unit, Int] = { _: Unit => 3}
     val transformerIntToString: Transformer[Int, String] = f_str
     val transformerAppendBang = f_bang
     val transformerAppendHash = f_hash
@@ -37,7 +38,8 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
 
     "linear" in {
       val result = for {
-        s <- transformerIntToString(3)
+        c <- constant()
+        s <- transformerIntToString(c)
         ss <- transformerAppendBang(s)
       } yield ss
 
@@ -47,6 +49,7 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
 
   "Transformer examples" should {
 
+    val constant = Transformer[Unit, Int] { _ => 3}
     val transformerIntToString = Transformer[Int, String] { i: Int => i.toString }
     val transformerAppendBang = Transformer[String, String] { s: String => s + "!" }
     val transformerAppendHash = Transformer[String, String] { s: String => s + "#" }
@@ -55,7 +58,8 @@ class OperationSuite extends WordSpec with ShouldMatchers with Logging {
     "linear" in {
 
       val result = for {
-        s <- transformerIntToString(3)
+        c <- constant()
+        s <- transformerIntToString(c)
         ss <- transformerAppendBang(s)
       } yield ss
 
