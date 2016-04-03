@@ -21,12 +21,15 @@ case class AkkaDAG(graph: DAG, functions: Map[String, Function[Any, Any]], sys :
     node <- graph.nodes
   } yield DagSpec(node.label, node.getParentLabels.toList)
 
-  DagManager(dagSpecs, functions, sys)
+  val listParamFunctions:Map[String, Function[List[Any], Any]] =
+    functions.map({case (k: String, v: Function[Any, Any]) => (k, ParamTuple(v))})
+
+  DagManager(dagSpecs, listParamFunctions, sys)
 }
 
 case class DagSpec(id : String, precursors : List[String], delay : Long = 0L, fail : Boolean = false)
 
-case class DagManager(input : List[DagSpec], functions: Map[String, Function[Any, Any]], sys : Option[ActorSystem] = None) {
+case class DagManager(input : List[DagSpec], functions: Map[String, Function[List[Any], Any]], sys : Option[ActorSystem] = None) {
 
   println("start..")
   assert(input.map(_.id).distinct.size == input.size, "Duplicate entries in the task list")
@@ -110,7 +113,7 @@ case class DagCompletesQuery()
 case class DagFailuresQuery()
 
 //actors
-class DagNode(id: String, pre : List[String], func: Function[Any, Any], monitor : ActorRef, delay : Long, fail : Boolean)
+class DagNode(id: String, pre : List[String], func: Function[List[Any], Any], monitor : ActorRef, delay : Long, fail : Boolean)
   extends Actor with akka.actor.ActorLogging  {
   import context._
   var post = List[ActorRef]()
@@ -162,7 +165,7 @@ class DagNode(id: String, pre : List[String], func: Function[Any, Any], monitor 
       println(s"Simulated failure at ${self.path.name}")
       self ! Failure(new Exception("Born to fail"))
     } else {
-      val result = ParamTuple(func)(inputs)
+      val result = func(inputs)
       println(s"$id -- inputs: $inputs, output: $result")
       self ! Success(result)
     }
