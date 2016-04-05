@@ -24,7 +24,7 @@ object GearStreamingApp {
   def apply(graph: DAG, functions: Map[String, Function[Any, Any]], config: UserConfig = UserConfig.empty)(implicit sys : ActorSystem): StreamApplication = {
     val system: ActorSystem = implicitly[ActorSystem]
 
-    val g: Graph[DefaultProcessor[GearTask], HashPartitioner] = Graph()
+    val g: Graph[Processor[GearTask], HashPartitioner] = Graph()
 
     val partitioner = new HashPartitioner
 
