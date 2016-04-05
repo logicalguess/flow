@@ -76,19 +76,17 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
 
   property("DAG") {
     val graph = DAG("flow",
-      List("first"), List("second", "first"), List("third", "second"), List("fourth", "second"),
-      List("fifth", "third", "fourth"))
+      List("first"), List("second", "first"), List("third", "second"), List("fourth", "third"))
 
 
     val constant = {_: Unit => 7}
     val f_str = { i: Int => i.toString }
     val f_bang = {  s: String =>  s + "!" }
     val f_hash = { s: String =>  s + "#" }
-    val f_concat = { s: (String, String) => s._1 + s._2 }
 
     val functions: Map[String, Function[Any, Any]] = Map("first" -> constant,
       "second" -> f_str, "third" -> f_bang,
-      "fourth" -> f_hash, "fifth" -> f_concat)
+      "fourth" -> f_hash)
 
     implicit val system = ActorSystem("test",  TestUtil.DEFAULT_CONFIG)
 
