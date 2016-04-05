@@ -72,6 +72,14 @@ libraryDependencies ++= Seq(
   //"io.spray"            %%  "spray-routing" % versions.spray,
   //"io.spray"            %%  "spray-testkit" % versions.spray  % "test",
 
+  "com.github.intel-hadoop" %% "gearpump-core" % "0.7.1",
+  "com.github.intel-hadoop" %% "gearpump-streaming" % "0.7.1",
+  "com.github.intel-hadoop" %% "gearpump-core" % "0.7.1" % "test" classifier "tests",
+  "com.github.intel-hadoop" %% "gearpump-streaming" % "0.7.1" % "test" classifier "tests",
+  "com.typesafe.akka" %% "akka-testkit" % versions.akka % "test",
+
+
+
   "org.mockito" % "mockito-core" % versions.mockito % "test",
   "org.scalatest" %% "scalatest" % versions.scalatest % "test",
   "org.specs2" %% "specs2" % versions.specs2 % "test"
