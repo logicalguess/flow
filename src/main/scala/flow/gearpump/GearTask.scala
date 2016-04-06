@@ -11,7 +11,7 @@ import io.gearpump.streaming.task.{StartTime, Task, TaskContext}
 import scala.util.{Failure, Success, Try}
 
 class GearTask(taskContext : TaskContext, config: UserConfig) extends Task(taskContext, config) {
-  val START = null
+  val START = "start"
   val fun: Function[Any, Any] = config.getValue[Function[Any, Any]]("function").get
 
   override def onStart(startTime: StartTime): Unit = {

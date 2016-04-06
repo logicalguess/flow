@@ -55,6 +55,15 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
     task.onStop
   }
 
+  property("Generator") {
+    val message = Message("start", now)
+    val fun: String => Iterator[Any] = { _ => (1 to 100).iterator }
+    val task = new GearTask(context, configFunction(fun))
+    task.onNext(message)
+    verify(context, times(100)).output(anyObject())
+    task.onStop
+  }
+
   property("App") {
     val appConfig = UserConfig.empty
 

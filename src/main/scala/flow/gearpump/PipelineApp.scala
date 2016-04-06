@@ -44,7 +44,7 @@ object PipelineApp extends AkkaApp with ArgumentsParser {
     val graph = DAG("flow", List("first"),
       List("second", "first"), List("third", "second"), List("fourth", "third"))
 
-    val gen = { _:Unit => (1 to 100).iterator }
+    val gen = { _: String => (1 to 100).iterator }
     val f_str = { i: Int => i.toString }
     val f_bang = {  s: String =>  s + "!" }
     val f_hash = { s: String =>  s + "#" }
