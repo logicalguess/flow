@@ -41,15 +41,18 @@ object PipelineApp extends AkkaApp with ArgumentsParser {
 
     val appConfig = UserConfig.empty.withValue[PipelineConfig]("Pipeline", pipelineConfig)
 
-    val graph = DAG("flow",
-      List("second"), List("third", "second"), List("fourth", "third"))
+    val graph = DAG("flow", List("first"),
+      List("second", "first"), List("third", "second"), List("fourth", "third"))
 
+    val gen = { _:Unit => (1 to 100).iterator }
     val f_str = { i: Int => i.toString }
     val f_bang = {  s: String =>  s + "!" }
     val f_hash = { s: String =>  s + "#" }
 
     val functions: Map[String, Function[Any, Any]] = Map(
-      "second" -> f_str, "third" -> f_bang,
+      "first" -> gen,
+      "second" -> f_str,
+      "third" -> f_bang,
       "fourth" -> f_hash)
 
     GearStreamingApp(graph, functions, appConfig)

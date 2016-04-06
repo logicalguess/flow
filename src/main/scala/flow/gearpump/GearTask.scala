@@ -21,7 +21,13 @@ class GearTask(taskContext : TaskContext, config: UserConfig) extends Task(taskC
   override def onNext(msg: Message): Unit = {
     Try( {
       LOG.debug(s"got message ${msg}")
-      taskContext.output(Message(fun(msg.msg), System.currentTimeMillis))
+      val res: Any = fun(msg.msg)
+      if (res.isInstanceOf[Iterator[_]]) {
+        val it: Iterator[_] = res.asInstanceOf[Iterator[_]]
+        it.foreach( m => taskContext.output(Message(m, System.currentTimeMillis)))
+      }
+      else
+        taskContext.output(Message(res, System.currentTimeMillis))
     }) match {
       case Success(ok) =>
       case Failure(throwable) =>
