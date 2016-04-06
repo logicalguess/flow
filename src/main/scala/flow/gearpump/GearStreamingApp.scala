@@ -1,10 +1,9 @@
 package flow.gearpump
 
 import akka.actor.ActorSystem
-import dag.DAG
+import dag.{DAG, Node}
 import io.gearpump.cluster.UserConfig
 import io.gearpump.partitioner.HashPartitioner
-import io.gearpump.streaming.Processor.DefaultProcessor
 import io.gearpump.streaming.{Processor, StreamApplication}
 import io.gearpump.util.Graph
 import io.gearpump.util.Graph._
@@ -30,8 +29,9 @@ object GearStreamingApp {
 
     val edges = for {
       edge <- graph.connectors
-      label1 = graph.getNode(edge.from).label
-      p1 = Processor[GearTask](1, label1, configFunction(functions(label1), config))
+      node1: Node = graph.getNode(edge.from)
+      label1 = node1.label
+      p1 = Processor[GearTask](1, label1, configFunction(functions(label1), config).withBoolean("root", node1.isRoot))
       label2 = graph.getNode(edge.to).label
       p2 = Processor[GearTask](1, label2, configFunction(functions(label2), config))
     } yield  (p1, p2)

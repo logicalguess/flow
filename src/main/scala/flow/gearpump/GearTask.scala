@@ -14,7 +14,7 @@ class GearTask(taskContext : TaskContext, config: UserConfig) extends Task(taskC
   val fun: Function[Any, Any] = config.getValue[Function[Any, Any]]("function").get
 
   override def onStart(startTime: StartTime): Unit = {
-    self ! Message("start", System.currentTimeMillis)
+    if (config.getBoolean("root").get) self ! Message("start", System.currentTimeMillis)
   }
 
   override def onNext(msg: Message): Unit = {

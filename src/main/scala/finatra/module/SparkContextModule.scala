@@ -25,7 +25,7 @@ object SparkContextModule extends TwitterModule {
         .setMaster(master())
         .setAppName("InteractiveALS")
         .set("spark.executor.memory", memory())
-        .set("spark.ui.enabled", "false")
+        //.set("spark.ui.enabled", "false")
       Some(new SparkContext(conf))
     }
     else None
