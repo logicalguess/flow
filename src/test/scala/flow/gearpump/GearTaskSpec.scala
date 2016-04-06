@@ -10,6 +10,7 @@ import dag.DAG
 import io.gearpump.Message
 import io.gearpump.cluster.{TestUtil, UserConfig}
 import io.gearpump.cluster.client.ClientContext
+import io.gearpump.streaming.task.StartTime
 import io.gearpump.streaming.{MockUtil, Processor, StreamApplication}
 import io.gearpump.util.Graph
 import io.gearpump.util.Graph._
@@ -55,12 +56,19 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
     task.onStop
   }
 
-  property("Generator") {
-    val message = Message("start", now)
-    val fun: String => Iterator[Any] = { _ => (1 to 100).iterator }
-    val task = new GearTask(context, configFunction(fun))
-    task.onNext(message)
+  property("Generator root") {
+    val fun: String => Iterator[_] = { _ => (1 to 100).iterator }
+    val task = new GearTask(context, configFunction(fun).withBoolean("root", true))
+    task.onStart(StartTime(now))
     verify(context, times(100)).output(anyObject())
+    task.onStop
+  }
+
+  property("Generator non-root") {
+    val fun: String => Iterator[_] = { _ => (1 to 100).iterator }
+    val task = new GearTask(context, configFunction(fun).withBoolean("root", false))
+    task.onStart(StartTime(now))
+    verify(context, times(0)).output(anyObject())
     task.onStop
   }
 

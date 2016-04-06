@@ -11,16 +11,19 @@ import io.gearpump.streaming.task.{StartTime, Task, TaskContext}
 import scala.util.{Failure, Success, Try}
 
 class GearTask(taskContext : TaskContext, config: UserConfig) extends Task(taskContext, config) {
-  val START = "start"
+  val START = "go"
   val fun: Function[Any, Any] = config.getValue[Function[Any, Any]]("function").get
 
   override def onStart(startTime: StartTime): Unit = {
-    if (config.getBoolean("root").get) self ! Message(START, System.currentTimeMillis)
+    if (config.getBoolean("root").get) {
+      self ! Message(START, System.currentTimeMillis)
+      onNext(Message(START, System.currentTimeMillis))
+    }
   }
 
   override def onNext(msg: Message): Unit = {
     Try( {
-      LOG.debug(s"got message ${msg}")
+      LOG.info(s"got message ${msg}")
       val res: Any = fun(msg.msg)
       if (res.isInstanceOf[Iterator[_]]) {
         val it: Iterator[_] = res.asInstanceOf[Iterator[_]]
