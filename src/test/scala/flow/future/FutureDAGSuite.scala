@@ -2,7 +2,7 @@ package flow.future
 
 import java.io.File
 
-import dag.DAG
+import dag.{DAG, Util}
 import util.FunctionImplicits._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ShouldMatchers, WordSpec}
@@ -43,7 +43,7 @@ class FutureDAGSuite extends WordSpec with ShouldMatchers with Logging with Scal
 
     "diamond in config" in {
 
-      val graph = DAG.read(new File("src/main/resources/diamond.json"))
+      val graph = Util.read(new File("src/main/resources/diamond.json"))
 
       val ops = OperationBuilder(graph,
         Map("first" -> constant),

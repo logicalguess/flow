@@ -1,12 +1,21 @@
 package dag
 
-import java.io.{ByteArrayOutputStream, IOException}
+import java.io.{ByteArrayOutputStream, File, FileInputStream, IOException}
 import java.util.zip.GZIPOutputStream
 
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.net.URLCodec
+import org.json4s.jackson.JsonMethods._
 
 object Util {
+  import org.json4s.DefaultFormats
+  implicit val formats = DefaultFormats
+
+  def read(file: File): DAG = {
+    val stream = new FileInputStream(file.getCanonicalPath)
+    val json = scala.io.Source.fromInputStream(stream).mkString
+    parse(json).extract[DAG]
+  }
   @throws(classOf[IOException])
   def compress(data: String): Array[Byte] = {
     val bos: ByteArrayOutputStream = new ByteArrayOutputStream(data.length)

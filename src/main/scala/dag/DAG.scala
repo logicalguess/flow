@@ -130,15 +130,6 @@ case class DAG(name: String,
 }
 
 object DAG {
-  import org.json4s.jackson.JsonMethods._
-  import org.json4s.DefaultFormats
-  implicit val formats = DefaultFormats
-
-  def read(file: File): DAG = {
-    val stream = new FileInputStream(file.getCanonicalPath)
-    val json = scala.io.Source.fromInputStream(stream).mkString
-    parse(json).extract[DAG]
-  }
 
   def dotFormatDiagram(graph: DAG, useStats: Boolean = false): String = {
     val edges: List[(String, String)] = graph.connectors.map(c => (c.from, c.to))

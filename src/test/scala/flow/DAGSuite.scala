@@ -66,7 +66,7 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
 
     "diamond in config" in {
 
-      val graph = DAG.read(new File("src/main/resources/diamond.json"))
+      val graph = Util.read(new File("src/main/resources/diamond.json"))
 
       val ops = OperationBuilder(graph,
         Map("first" -> constant),
@@ -80,7 +80,7 @@ class DAGSuite extends WordSpec with ShouldMatchers with Logging {
 
     "diagram" in {
 
-      val graph = DAG.read(new File("src/main/resources/diamond.json"))
+      val graph = Util.read(new File("src/main/resources/diamond.json"))
       println(graph.getRoots(0).print())
 
       println(Util.gravizoDotLink(DAG.dotFormatDiagram(graph)))
