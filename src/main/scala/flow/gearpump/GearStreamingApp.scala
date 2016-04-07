@@ -27,16 +27,24 @@ object GearStreamingApp {
 
     val partitioner = new HashPartitioner
 
-    val edges = for {
-      edge <- graph.connectors
-      node1: Node = graph.getNode(edge.from)
-      label1 = node1.label
-      p1 = Processor[GearTask](1, label1, configFunction(functions(label1), config).withBoolean("root", node1.isRoot))
-      label2 = graph.getNode(edge.to).label
-      p2 = Processor[GearTask](1, label2, configFunction(functions(label2), config))
-    } yield  (p1, p2)
+    val vertices = scala.collection.mutable.Map[String, Processor[GearTask]]()
 
-    edges.foreach( e => g.addEdge(e._1, partitioner, e._2))
+    for (node <- graph.nodes) {
+      val label: String  = node.label
+      val processor: Processor[GearTask] = Processor[GearTask](1, label, configFunction(functions(label), config)
+        .withBoolean("root", node.isRoot))
+      vertices(label) = processor
+      g.addVertex(processor)
+    }
+
+    for(edge <- graph.connectors) {
+      val node1: Node = graph.getNode(edge.from)
+      val label1 = node1.label
+      val p1 = vertices(label1)
+      val label2 = graph.getNode(edge.to).label
+      val p2 = vertices(label2)
+      g.addEdge(p1, partitioner, p2)
+    }
 
     StreamApplication("Test", g, config)
   }

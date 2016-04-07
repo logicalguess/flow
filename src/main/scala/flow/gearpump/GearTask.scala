@@ -17,7 +17,7 @@ class GearTask(taskContext : TaskContext, config: UserConfig) extends Task(taskC
   override def onStart(startTime: StartTime): Unit = {
     if (config.getBoolean("root").get) {
       self ! Message(START, System.currentTimeMillis)
-      onNext(Message(START, System.currentTimeMillis))
+      //onNext(Message(START, System.currentTimeMillis))
     }
   }
 

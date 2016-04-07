@@ -10,7 +10,7 @@ import dag.DAG
 import io.gearpump.Message
 import io.gearpump.cluster.{TestUtil, UserConfig}
 import io.gearpump.cluster.client.ClientContext
-import io.gearpump.streaming.task.StartTime
+import io.gearpump.streaming.task.{StartTime, TaskContext}
 import io.gearpump.streaming.{MockUtil, Processor, StreamApplication}
 import io.gearpump.util.Graph
 import io.gearpump.util.Graph._
@@ -26,9 +26,7 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
   //implicit var system: ActorSystem = ActorSystem("GearTaskSpec")
   implicit var system: ActorSystem = null
 
-  val context = MockUtil.mockTaskContext
   val appName = "GearTest"
-  when(context.appName).thenReturn(appName)
   val now = System.currentTimeMillis
 
   val userConfig = UserConfig.empty
@@ -47,8 +45,9 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
   }
 
   property("Task") {
-    val message = Message(7, now)
+    val context = MockUtil.mockTaskContext
 
+    val message = Message(7, now)
     val fun: Int => String = { i => "done" }
     val task = new GearTask(context, configFunction(fun))
     task.onNext(message)
@@ -57,6 +56,7 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
   }
 
   property("Generator root") {
+    val context = MockUtil.mockTaskContext
     val fun: String => Iterator[_] = { _ => (1 to 100).iterator }
     val task = new GearTask(context, configFunction(fun).withBoolean("root", true))
     task.onStart(StartTime(now))
@@ -65,6 +65,7 @@ class GearTaskSpec extends PropSpec with PropertyChecks with Matchers with Befor
   }
 
   property("Generator non-root") {
+    val context = MockUtil.mockTaskContext
     val fun: String => Iterator[_] = { _ => (1 to 100).iterator }
     val task = new GearTask(context, configFunction(fun).withBoolean("root", false))
     task.onStart(StartTime(now))
