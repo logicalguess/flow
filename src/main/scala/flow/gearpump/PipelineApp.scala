@@ -55,7 +55,12 @@ object PipelineApp extends AkkaApp with ArgumentsParser {
       "third" -> f_bang,
       "fourth" -> f_hash)
 
-    GearStreamingApp(graph, functions, appConfig)
+    val app = GearStreamingApp(graph, functions, appConfig)
+
+    println("VERTICES: " + app.dag.vertices.map(v => v.id))
+    println("EDGES: " + app.dag.edges.map(e => (e._1.id, e._3.id)))
+
+    app
   }
 
   override def main(akkaConf: Config, args: Array[String]): Unit = {
