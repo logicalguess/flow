@@ -28,6 +28,9 @@ resolvers ++= Seq(
   Resolver.url("typesafe ivy",  url("http://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
 )
 
+resolvers += "Job Server Bintray" at "https://dl.bintray.com/spark-jobserver/maven"
+
+
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % versions.logback,
   "com.sksamuel.elastic4s" %% "elastic4s-core" % versions.elastic4s,
@@ -78,9 +81,12 @@ libraryDependencies ++= Seq(
   "com.github.intel-hadoop" %% "gearpump-streaming" % "0.7.1" % "test" classifier "tests",
   "com.typesafe.akka" %% "akka-testkit" % versions.akka % "test",
 
+  "spark.jobserver" %% "job-server-api" % "0.6.1",
+  "spark.jobserver" %% "job-server-extras" % "0.6.1",
 
 
-  "org.mockito" % "mockito-core" % versions.mockito % "test",
+
+"org.mockito" % "mockito-core" % versions.mockito % "test",
   "org.scalatest" %% "scalatest" % versions.scalatest % "test",
   "org.specs2" %% "specs2" % versions.specs2 % "test"
 ).map(
