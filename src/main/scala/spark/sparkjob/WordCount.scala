@@ -16,12 +16,15 @@ object WordCount extends SparkJob with NamedRddSupport {
     val configString =
       """
         |{
-        | inputFile: "inputFile/hosts.txt"
+        | inputFile: "src/main/resources/inputFile/hosts.txt"
         |}
       """.stripMargin
     val config = ConfigFactory.parseString(configString)
-    val results = runJob(sc, config)
-    //val results = sparkJobs.run(sc, config)
+
+    //execution models
+    val results = compose(sc, config)
+    //val results = runJob(sc, config)
+    //val results = sparkJobs.orchestrate(sc, config)
     println("Result is " + results)
   }
   
@@ -95,7 +98,7 @@ object WordCount extends SparkJob with NamedRddSupport {
     val counterJob: SparkJob = FunctionJob[String, (String, Int)]("tokenized", "wordCounts")(counter)
     val mapperJob: SparkJob = FunctionJob[(String, Int), Map[String, Int]]("wordCounts")(mapper)
 
-    def run(sc: SparkContext, config: Config): Any = {
+    def orchestrate(sc: SparkContext, config: Config): Any = {
       tokenizerJob.runJob(sc, config)
       counterJob.runJob(sc, config)
       mapperJob.runJob(sc, config)
