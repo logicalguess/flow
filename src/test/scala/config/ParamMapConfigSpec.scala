@@ -10,7 +10,7 @@ class ParamMapConfigSpec extends FlatSpec with Matchers {
 
   it should "parse params correctly" in {
 
-    val pm: ParamMap = ParamMap .empty
+    val pm: ParamMap = ParamMap.empty
     pm.put(new Param("", "flag", "") -> true)
     pm.put(new Param("", "opt1", "") -> 1)
     pm.put(new Param("", "opt2", "") -> 2)
