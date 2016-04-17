@@ -13,36 +13,17 @@ import scala.util.Try
 
 trait TypesafeConfigurable extends Configurable {
 
-  val config: Configuration = new TypesafeConfiguration()
+  val typeSafeConfig: Config = null
+  val resource: String = null
+  val stringConfig: String = null
+
+
+  lazy val config: TypesafeConfiguration =
+    new TypesafeConfiguration(typeSafeConfig = Option(typeSafeConfig),
+      resource = Option(resource), string = Option(stringConfig))
 }
 
-class TypesafeConfiguration(typeSafeConfig: Option[Config] = None,
-                            file: Option[File] = None,
-                            resource: Option[String] = None,
-                            subPath: Option[String] = None) extends Configuration {
-
-  val conf: Config = {
-    val res = file.fold(typeSafeConfig.getOrElse(ConfigFactory.load())) { externalFile =>
-      val fileConfig = ConfigFactory.parseFile(externalFile)
-      typeSafeConfig.fold(fileConfig)(_.withFallback(fileConfig))
-    }
-
-    subPath.fold(
-      resource.fold(res)(ConfigFactory.load)
-    ) { path => {
-      resource.fold(res) { typeSafeResource =>
-        typeSafeConfig.fold(ConfigFactory.load(typeSafeResource)) { tConfig =>
-          tConfig.withFallback(ConfigFactory.load(typeSafeResource))
-        }
-      }
-    }.getConfig(path)
-    }
-  }
-
-  def getConfigFromConfig(typeSafeConfig: Config, subPath: Option[String] = None): Option[Configuration] =
-    Try {
-      new TypesafeConfiguration(Option(typeSafeConfig), file, resource, subPath)
-    }.toOption
+object TypesafeConfiguration {
 
   def getConfigFromFile(file: File, subPath: Option[String] = None): Option[Configuration] =
     Try {
@@ -61,6 +42,41 @@ class TypesafeConfiguration(typeSafeConfig: Option[Config] = None,
                 subPath: Option[String] = None): Option[Configuration] =
     Try {
       new TypesafeConfiguration(typeSafeConfig, file, resource, subPath)
+    }.toOption
+}
+
+class TypesafeConfiguration(typeSafeConfig: Option[Config] = None,
+                            file: Option[File] = None,
+                            resource: Option[String] = None,
+                            string: Option[String] = None,
+                            subPath: Option[String] = None) extends Configuration {
+
+  val conf: Config = {
+    val tcfg: Config = typeSafeConfig.getOrElse(ConfigFactory.load())
+    val fileConfig = file.fold(tcfg) { externalFile =>
+      val fileConfig = ConfigFactory.parseFile(externalFile)
+      typeSafeConfig.fold(fileConfig)(_.withFallback(fileConfig))
+    }.withFallback(tcfg) //file overrides the passed in config
+
+    val res = subPath.fold(
+      resource.fold(fileConfig)(ConfigFactory.load)
+    ) { path => {
+      resource.fold(fileConfig) { typeSafeResource =>
+        typeSafeConfig.fold(ConfigFactory.load(typeSafeResource)) { tConfig =>
+          tConfig.withFallback(ConfigFactory.load(typeSafeResource))
+        }
+      }
+    }.getConfig(path)
+    }.withFallback(fileConfig) //resource overrides the file and passed in config
+
+    string.fold(res) { stringConfig =>
+      ConfigFactory.parseString(stringConfig).withFallback(res) //string config overrides everything else
+    }
+  }
+
+  def getConfigFromConfig(typeSafeConfig: Config, subPath: Option[String] = None): Option[Configuration] =
+    Try {
+      new TypesafeConfiguration(Option(typeSafeConfig), file, resource, subPath)
     }.toOption
 
   /**

@@ -15,8 +15,6 @@ class ParamMapConfigSpec extends FlatSpec with Matchers {
     pm.put(new Param("", "opt1", "") -> 1)
     pm.put(new Param("", "opt2", "") -> 2)
 
-
-
     val configurable = new ParamMapConfigurable {
       override val paramMap = pm
     }
