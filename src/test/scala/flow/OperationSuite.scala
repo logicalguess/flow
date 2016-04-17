@@ -1,12 +1,12 @@
 package flow
 
 import flow.OperationImplicits._
+import logging.ScalaLogging
 import org.scalatest.{ShouldMatchers, WordSpec}
-import util.Logging
 
 //import scalaz.syntax.bind._
 
-class OperationSuite extends WordSpec with ShouldMatchers with Logging {
+class OperationSuite extends WordSpec with ShouldMatchers with ScalaLogging {
 
   val f_str = { i: Int => i.toString }
   val f_bang = { s: String => s + "!" }

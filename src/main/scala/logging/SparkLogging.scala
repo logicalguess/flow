@@ -5,5 +5,5 @@ package logging
   */
 
 trait SparkLogging extends Logging with org.apache.spark.Logging {
-  val LOG: Log = new Slf4jLogger(log)
+  implicit lazy val LOG: Log = new Slf4jLogger(log)
 }

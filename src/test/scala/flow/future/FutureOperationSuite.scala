@@ -1,11 +1,11 @@
 package flow.future
 
 import flow.future.OperationImplicits._
+import logging.ScalaLogging
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ShouldMatchers, WordSpec}
-import util.Logging
 
-class FutureOperationSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
+class FutureOperationSuite extends WordSpec with ShouldMatchers with ScalaLogging with ScalaFutures {
 
   val f_str = { i: Int => i.toString }
   val f_bang = { s: String => s + "!" }

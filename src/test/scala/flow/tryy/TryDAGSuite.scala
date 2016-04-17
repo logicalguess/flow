@@ -3,14 +3,14 @@ package flow.tryy
 import java.io.File
 
 import dag.{DAG, Util}
+import logging.ScalaLogging
 import util.FunctionImplicits._
 import org.scalatest.{ShouldMatchers, WordSpec}
-import util.Logging
 
 import scala.util.Success
 
 
-class TryDAGSuite extends WordSpec with ShouldMatchers with Logging {
+class TryDAGSuite extends WordSpec with ShouldMatchers with ScalaLogging {
 
   "DAG examples" should {
     val constant = {7}

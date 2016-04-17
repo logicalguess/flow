@@ -5,13 +5,13 @@ import cats.free.Free
 import cats.std.all._
 import flow.free.OpImplicits._
 import flow.free.OpInterpreters._
+import logging.ScalaLogging
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ShouldMatchers, WordSpec}
-import util.Logging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class OpSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
+class OpSuite extends WordSpec with ShouldMatchers with ScalaLogging with ScalaFutures {
 
   val f_str = { i: Int => i.toString }
   val f_bang = { s: String => s + "!" }

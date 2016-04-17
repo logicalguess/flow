@@ -4,13 +4,13 @@ package spark.jdbc
 
 import com.typesafe.config.ConfigFactory
 import flow.Operation
+import logging.ScalaLogging
 import org.apache.spark.sql.{DataFrame, SaveMode}
-import util.Logging
 import util.Pimpers._
 
 import scala.util.Try
 
-object JdbcDataFrameExporter extends Logging {
+object JdbcDataFrameExporter extends ScalaLogging {
 
   protected val config = ConfigFactory.load()
 

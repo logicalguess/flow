@@ -1,6 +1,6 @@
 package util
 
-import com.typesafe.scalalogging.Logger
+import logging.Log
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
@@ -9,10 +9,10 @@ import scala.util.{Failure, Try}
 object Pimpers {
 
   implicit class TryPimper[A](t: Try[A]) {
-    def withErrorLog(msg: String)(implicit log: Logger): Try[A] =
+    def withErrorLog(msg: String)(implicit LOG: Log): Try[A] =
       t.recoverWith {
         case e ⇒
-          log.error(msg, e)
+          LOG.error(msg, e)
           Failure(e)
       }
 
@@ -23,9 +23,9 @@ object Pimpers {
   }
 
   implicit class FuturePimper[T](f: Future[T]) {
-    def withErrorLog(msg: String)(implicit log: Logger, ec: ExecutionContext): Future[T] = {
+    def withErrorLog(msg: String)(implicit LOG: Log, ec: ExecutionContext): Future[T] = {
       f.onFailure {
-        case e ⇒ log.error(msg, e)
+        case e ⇒ LOG.error(msg, e)
       }
       f
     }

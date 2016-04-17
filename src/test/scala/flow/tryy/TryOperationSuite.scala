@@ -1,12 +1,12 @@
 package flow.tryy
 
 import flow.tryy.OperationImplicits._
+import logging.ScalaLogging
 import org.scalatest.{ShouldMatchers, WordSpec}
-import util.Logging
 
 import scala.util.Success
 
-class TryOperationSuite extends WordSpec with ShouldMatchers with Logging {
+class TryOperationSuite extends WordSpec with ShouldMatchers with ScalaLogging {
 
   val f_str = { i: Int => i.toString }
   val f_bang = { s: String => s + "!" }

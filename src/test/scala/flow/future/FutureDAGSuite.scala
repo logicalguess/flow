@@ -3,13 +3,13 @@ package flow.future
 import java.io.File
 
 import dag.{DAG, Util}
+import logging.ScalaLogging
 import util.FunctionImplicits._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ShouldMatchers, WordSpec}
-import util.Logging
 
 
-class FutureDAGSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
+class FutureDAGSuite extends WordSpec with ShouldMatchers with ScalaLogging with ScalaFutures {
 
   "DAG examples" should {
     val constant = {7}

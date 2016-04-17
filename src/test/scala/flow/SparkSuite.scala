@@ -1,17 +1,16 @@
 package flow
 
+import logging.SparkLogging
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.scalatest.{ShouldMatchers, WordSpec}
-import spark.{RDDTransformer, LOCAL, SparkProvider, SparkOperation}
-import util.Logging
+import spark.{LOCAL, RDDTransformer, SparkOperation, SparkProvider}
 import org.scalatest.concurrent.ScalaFutures
-
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 
 
-class SparkSuite extends WordSpec with ShouldMatchers with Logging with ScalaFutures {
+class SparkSuite extends WordSpec with ShouldMatchers with SparkLogging with ScalaFutures {
 
   Logger.getRootLogger.setLevel(Level.WARN)
   Logger.getLogger("org").setLevel(Level.WARN)

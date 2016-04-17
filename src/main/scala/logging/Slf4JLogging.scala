@@ -7,8 +7,7 @@ package logging
 import org.slf4j.{Logger, LoggerFactory}
 
 trait Slf4JLogging extends Logging {
-
-  val LOG: Log = new Slf4jLogger(LoggerFactory.getLogger(getClass.getName))
+  implicit lazy val LOG: Log = new Slf4jLogger(LoggerFactory.getLogger(getClass.getName))
 }
 
 class Slf4jLogger(logger: Logger) extends Log {
