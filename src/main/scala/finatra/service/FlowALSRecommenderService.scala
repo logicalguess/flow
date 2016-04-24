@@ -11,8 +11,8 @@ import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rat
 import org.apache.spark.rdd.RDD
 
 import scala.util.Random
-
 import Functions._
+import util.Timing
 
 /**
   * Created by logicalguess on 2/26/16.
@@ -21,7 +21,7 @@ import Functions._
 @Singleton
 case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataProvider) extends RecommenderService {
 
-  val (model, model_duration, rmse, url) = createModel()
+  val (model, model_duration, rmse, model_url) = createModel()
 
   def getRecommendationsForUser(userId: Int, count: Int) = {
 
@@ -65,11 +65,15 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         "mapped_by_id" -> mapByIdFn,
         "predict" -> predictFn))
 
-    val (recs: List[Rating], duration: Long) = time {ops("predict")().asInstanceOf[Array[Rating]].toList }
-    (recs, duration, model_duration, dataProvider.getDuration().getOrElse(0) ,"%.3f".format(rmse).toDouble, url,
-      Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true)),
-      dataProvider.getGraph().map(g => Util.gravizoDotLink(DAG.dotFormatDiagram(g))).getOrElse(""))
+    val (recs: List[Rating], predict_duration: Long) = Timing.time {ops("predict")().asInstanceOf[Array[Rating]].toList }
 
+    val predict_url = Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true))
+    val data_url = dataProvider.getGraph().map(g => Util.gravizoDotLink(DAG.dotFormatDiagram(g))).getOrElse("")
+    val data_duration: Long = dataProvider.getDuration().getOrElse(0)
+
+    (recs, predict_duration, model_duration,
+      data_duration,"%.3f".format(rmse).toDouble, model_url,
+      predict_url, data_url)
   }
 
   def createModel(): (MatrixFactorizationModel, Long, Double, String) = {
@@ -103,17 +107,9 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         )
       )
 
-    val (m: MatrixFactorizationModel, duration: Long) = time {ops("model")().asInstanceOf[MatrixFactorizationModel]}
+    val (m: MatrixFactorizationModel, duration: Long) = Timing.time {ops("model")().asInstanceOf[MatrixFactorizationModel]}
     (m, duration, ops("rmse")().asInstanceOf[Double],
       Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true)))
-  }
-
-
-  def time[T](thunk: => T): (T, Long) = {
-    val t1 = System.currentTimeMillis
-    val t = thunk
-    val t2 = System.currentTimeMillis
-    (t, t2 - t1)
   }
 }
 

@@ -7,6 +7,7 @@ scalaVersion := "2.11.7"
 lazy val versions = new {
   val spray = "1.1.3"
   val akka = "2.3.9"
+  val flink = "1.0.0"
   val finatra = "2.1.2"
   val mustache = "0.9.1"
   val logback = "1.0.13"
@@ -69,6 +70,10 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "1.6.0",
   "org.apache.spark" %% "spark-mllib" % "1.6.0",
   "com.databricks" %% "spark-csv" % "1.3.0",
+
+  "org.apache.flink" %% "flink-scala" % versions.flink,
+  "org.apache.flink" %% "flink-streaming-scala" % versions.flink,
+  "org.apache.flink" %% "flink-ml" % versions.flink,
 
 
   //"io.spray"            %%  "spray-can"     % versions.spray,
