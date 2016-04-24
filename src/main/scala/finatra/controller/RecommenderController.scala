@@ -3,24 +3,30 @@ package finatra.controller
 import java.io.PrintWriter
 import javax.inject.Singleton
 
-import com.github.mustachejava.{Mustache, DefaultMustacheFactory, MustacheFactory}
+import com.github.mustachejava.{DefaultMustacheFactory, Mustache, MustacheFactory}
 import com.google.inject.Inject
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.annotations.Flag
 import com.twitter.finatra.http.Controller
 import finatra.service.RecommenderService
 import finatra.views.{MovieView, RecommenderView}
+import org.apache.spark.mllib.recommendation.Rating
+
 
 @Singleton
 class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.count") recCount: Int) extends Controller {
 
   get("/recommender/:userId") { request: Request =>
-    val (recommendations, duration, model_duration, feature_duration, rmse, url1, url2, url3) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
-    val results = recSvc.getItems(recommendations.toList.map { r => r.product })
+    val List(predictExecution, modelExecution, featureExecution) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
+
+    val recommendations: List[Rating] = predictExecution.result.get.asInstanceOf[List[Rating]]
+    //val (recommendations, duration, model_duration, feature_duration, rmse, url1, url2, url3) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
+    val results = recSvc.getItems(recommendations.map { r => r.product })
       .zip(recommendations.map {r => r.rating})
       .map(tuple => (MovieView(tuple._1, tuple._2)))
 
-    val view = RecommenderView(results, duration, rmse, url1, url2)
+    val view = RecommenderView(results, predictExecution.duration, modelExecution.extra.get.toString.toDouble,
+      modelExecution.graphURL(), predictExecution.graphURL())
 
     val header =
       """
@@ -109,7 +115,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |<div class="ui four cards">
         |  <div class="card">
         |    <div class="image">
-        |      <img src="$url3">
+        |      <img src="${featureExecution.graphURL()}">
         |    </div>
         |    <div class="content">
         |      <div class="header">Feature Pipeline</div>
@@ -123,13 +129,13 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |    <div class="extra content">
         |        <span>
         |        <i class="wait icon"></i>
-        |        $feature_duration ms
+        |        ${featureExecution.duration} ms
         |      </span>
         |    </div>
         |  </div>
         |  <div class="card">
         |    <div class="image">
-        |      <img src="$url1">
+        |      <img src="${modelExecution.graphURL()}">
         |    </div>
         |    <div class="content">
         |      <div class="header">Learning Pipeline</div>
@@ -142,17 +148,17 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |    </div>
         |    <div class="extra content">
         |    <span class="right floated">
-        |                RMSE: $rmse
+        |                RMSE: ${modelExecution.extra.get.toString}
         |    </span>
         |        <span>
         |        <i class="wait icon"></i>
-        |        $model_duration ms
+        |        ${modelExecution.duration} ms
         |      </span>
         |    </div>
         |  </div>
         |          <div class="card">
         |    <div class="image">
-        |      <img src="$url2">
+        |      <img src="${predictExecution.graphURL()}">
         |    </div>
         |    <div class="content">
         |      <div class="header">Predicting Pipeline</div>
@@ -166,7 +172,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |    <div class="extra content">
         |        <span>
         |        <i class="wait icon"></i>
-        |        $duration ms
+        |        ${predictExecution.duration} ms
         |      </span>
         |    </div>
         |  </div>
