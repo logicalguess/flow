@@ -20,12 +20,11 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
     val List(predictExecution, modelExecution, featureExecution) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
 
     val recommendations: List[Rating] = predictExecution.result.get.asInstanceOf[List[Rating]]
-    //val (recommendations, duration, model_duration, feature_duration, rmse, url1, url2, url3) = recSvc.getRecommendationsForUser(request.params("userId").toInt, recCount)
     val results = recSvc.getItems(recommendations.map { r => r.product })
       .zip(recommendations.map {r => r.rating})
       .map(tuple => (MovieView(tuple._1, tuple._2)))
 
-    val view = RecommenderView(results, predictExecution.duration, modelExecution.extra.get.toString.toDouble,
+    val view = RecommenderView(results, predictExecution.duration, modelExecution.extra.getOrElse("-1").toString.toDouble,
       modelExecution.graphURL(), predictExecution.graphURL())
 
     val header =
@@ -148,7 +147,7 @@ class RecommenderController @Inject()(recSvc: RecommenderService, @Flag("rec.cou
         |    </div>
         |    <div class="extra content">
         |    <span class="right floated">
-        |                RMSE: ${modelExecution.extra.get.toString}
+        |                RMSE: ${modelExecution.extra.getOrElse("-1").toString}
         |    </span>
         |        <span>
         |        <i class="wait icon"></i>

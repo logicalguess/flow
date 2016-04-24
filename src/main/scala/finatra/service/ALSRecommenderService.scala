@@ -29,9 +29,9 @@ case class ALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataP
       .take(count)
 
     List(
-      ExecutionInfo("predict", Some(recs), 0),
-      ExecutionInfo("data", None, dataProvider.getDuration().getOrElse(0), dataProvider.getGraph()),
-      ExecutionInfo("model", None)
+      ExecutionInfo("predict", Some(recs.toList), 0),
+      ExecutionInfo("model", None),
+      ExecutionInfo("feature", None, dataProvider.getDuration().getOrElse(-1), dataProvider.getGraph())
     )
   }
 

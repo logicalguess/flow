@@ -2,7 +2,7 @@ package finatra.service
 
 import javax.inject.{Inject, Singleton}
 
-import dag.{DAG, Util}
+import dag.DAG
 import finatra.data.DataProvider
 import flow.OperationBuilder
 import util.FunctionImplicits._
@@ -74,13 +74,6 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
       modelExecution.noResult,
       ExecutionInfo("feature", None, dataProvider.getDuration().getOrElse(0), dataProvider.getGraph())
     )
-//    val predict_url = Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true))
-//    val data_url = dataProvider.getGraph().map(g => Util.gravizoDotLink(DAG.dotFormatDiagram(g))).getOrElse("")
-//    val data_duration: Long = dataProvider.getDuration().getOrElse(0)
-
-//    (recs, predict_duration, model_duration,
-//      data_duration,"%.3f".format(rmse).toDouble, model_url,
-//      predict_url, data_url)
   }
 
   def createModel(): ExecutionInfo = {
@@ -118,9 +111,6 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
     ExecutionInfo("model", Some(m), duration, Some(graph),
       Some("%.3f".format(ops("rmse")().asInstanceOf[Double]).toDouble))
-
-//    (m, duration, ops("rmse")().asInstanceOf[Double],
-//      Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true)))
   }
 }
 

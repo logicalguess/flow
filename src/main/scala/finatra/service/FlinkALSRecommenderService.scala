@@ -79,16 +79,6 @@ case class FlinkALSRecommenderService @Inject()(dataProvider: DataProvider) exte
       modelExecution.noResult,
       ExecutionInfo("feature", None, dataProvider.getDuration().getOrElse(0), dataProvider.getGraph())
     )
-
-//    val predict_url = Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true))
-//    val data_url = dataProvider.getGraph().map(g => Util.gravizoDotLink(DAG.dotFormatDiagram(g))).getOrElse("")
-//    val data_duration: Long = dataProvider.getDuration().getOrElse(0)
-
-
-//    (recs.map(x => Rating(x._1, x._2, x._3)), predict_duration, model_duration,
-//      data_duration,"%.3f".format(rmse).toDouble, model_url,
-//      predict_url, data_url)
-
   }
 
   def createModel(): ExecutionInfo = {
@@ -122,8 +112,6 @@ case class FlinkALSRecommenderService @Inject()(dataProvider: DataProvider) exte
 
     ExecutionInfo("model", Some(m), model_duration, Some(graph),
       Some("%.3f".format(ops("rmse")().asInstanceOf[Double]).toDouble))
-//    (m, model_duration, ops("rmse")().asInstanceOf[Double],
-//      Util.gravizoDotLink(DAG.dotFormatDiagram(graph, true)))
   }
 }
 
