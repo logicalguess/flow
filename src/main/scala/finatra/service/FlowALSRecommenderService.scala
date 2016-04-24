@@ -31,11 +31,11 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
     val productsFn = dataProvider.getProductNames
 
     val candidatesFn: (SparkContext, Map[Int, String]) => RDD[Int] = {
-      (sc: SparkContext, products: Map[Int, String]) => sc.parallelize(products.keys.toSeq)
+      (sc: SparkContext, products: Map[Int, String]) => sc.parallelize(products.keys.toSeq).cache()
     }
 
     val mapByIdFn: (Int, RDD[Int]) => RDD[(Int, Int)] =  {
-      (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _))
+      (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _)).cache()
     }
     val predictFn: (MatrixFactorizationModel, RDD[(Int, Int)]) => Array[Rating] = {
       (model,  rdd: RDD[(Int, Int)]) =>

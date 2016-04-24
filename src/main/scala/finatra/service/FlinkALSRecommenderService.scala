@@ -41,6 +41,7 @@ case class FlinkALSRecommenderService @Inject()(dataProvider: DataProvider) exte
     val mapByIdFn: (Int, DataSet[Int]) => DataSet[(Int, Int)] =  {
       (userId: Int, ds: DataSet[Int]) => ds.map((userId, _))
     }
+
     val predictFn: (ALS, DataSet[(Int, Int)]) => Array[(Int, Int, Double)] = {
       (model,  ds: DataSet[(Int, Int)]) =>
         model
