@@ -19,7 +19,7 @@ import util.Timing
   */
 
 @Singleton
-case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataProvider) extends RecommenderService {
+case class SparkALSRecommenderService @Inject()(sc: SparkContext, dataProvider: DataProvider) extends RecommenderService {
 
   val modelExecution: ExecutionInfo = createModel()
 
@@ -27,19 +27,20 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
   def getRecommendationsForUser(userId: Int, count: Int) = {
 
-    val userIdFn = {userId}
-    val sparkContextFn = {sc}
-    val modelFn = {model}
-    val productsFn = dataProvider.getProductNames
+    val userId = {userId}
+    val sparkContext = {sc}
+    val model = {model}
+    val products = dataProvider.getProductNames
 
-    val candidatesFn: (SparkContext, Map[Int, String]) => RDD[Int] = {
+    val candidates: (SparkContext, Map[Int, String]) => RDD[Int] = {
       (sc: SparkContext, products: Map[Int, String]) => sc.parallelize(products.keys.toSeq).cache()
     }
 
-    val mapByIdFn: (Int, RDD[Int]) => RDD[(Int, Int)] =  {
+    val mapById: (Int, RDD[Int]) => RDD[(Int, Int)] =  {
       (userId: Int, rdd: RDD[Int]) => rdd.map((userId, _)).cache()
     }
-    val predictFn: (MatrixFactorizationModel, RDD[(Int, Int)]) => Array[Rating] = {
+
+    val predict: (MatrixFactorizationModel, RDD[(Int, Int)]) => Array[Rating] = {
       (model,  rdd: RDD[(Int, Int)]) =>
         model
         .predict(rdd)
@@ -47,7 +48,7 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
         .sortBy(- _.rating)
         .take(count)
     }
-    //val fns = predictFn(mapByIdFn(userId, candidatesFn(sparkContextFn, productsFn)))
+    //val fns = predict(mapById(userId, candidates(sparkContext, products)))
 
     val graph = DAG("flow",
       List("userId"),
@@ -59,13 +60,13 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
       List("predict", "model", "mapped_by_id"))
 
     val ops = OperationBuilder(graph,
-      Map("spark_context" -> sparkContextFn,
-        "userId" -> userIdFn,
-        "movie_names" -> productsFn,
-        "model" -> modelFn),
-      Map("candidates" -> candidatesFn,
-        "mapped_by_id" -> mapByIdFn,
-        "predict" -> predictFn))
+      Map("spark_context" -> sparkContext,
+        "userId" -> userId,
+        "movie_names" -> products,
+        "model" -> model),
+      Map("candidates" -> candidates,
+        "mapped_by_id" -> mapById,
+        "predict" -> predict))
 
     val (recs: List[Rating], predict_duration: Long) = Timing.time {ops("predict")().asInstanceOf[Array[Rating]].toList }
 
@@ -78,11 +79,11 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
   def createModel(): ExecutionInfo = {
 
-    val ratingsFn: RDD[Rating] = dataProvider.getRatings
+    val ratings: RDD[Rating] = dataProvider.getRatings
 
-//    val ratings = addRandomLongColumnFn(ratingsFn)
-//    val model = train(trainingFilterFn(ratings), validationFilterFn(ratings))
-//    val testRmse = computeRmse(model, testingFilterFn(ratings))
+//    val ratings = addRandomLongColumn(ratings)
+//    val model = train(trainingFilter(ratings), validationFilter(ratings))
+//    val testRmse = computeRmse(model, testingFilter(ratings))
 //    (model, testRmse)
 
     val graph = DAG("recommender",
@@ -96,12 +97,12 @@ case class FlowALSRecommenderService @Inject()(sc: SparkContext, dataProvider: D
 
 
     val ops = OperationBuilder(graph,
-      Map("ratings" -> ratingsFn),
+      Map("ratings" -> ratings),
       Map(
-        "dataset" -> addRandomLongColumnFn,
-        "training" -> trainingFilterFn,
-        "validation" -> validationFilterFn,
-        "testing" -> testingFilterFn,
+        "dataset" -> addRandomLongColumn,
+        "training" -> trainingFilter,
+        "validation" -> validationFilter,
+        "testing" -> testingFilter,
         "model" -> train,
         "rmse" -> computeRmse _
         )
@@ -129,38 +130,40 @@ object Functions {
   }
 
 
-//  def addRandomLongColumnFn(rs: RDD[Rating]): RDD[(Long, Rating)]  = {
+//  def addRandomLongColumn(rs: RDD[Rating]): RDD[(Long, Rating)]  = {
 //    val rand = new Random()
 //    rs.map { r => (rand.nextInt(10).toLong, r) }
 //  }
 
-  val addRandomLongColumnFn: RDD[Rating] => RDD[(Long, Rating)]  = { rs =>
+  val addRandomLongColumn: RDD[Rating] => RDD[(Long, Rating)]  = { rs =>
     val rand = new Random()
     rs.map { r => (rand.nextInt(10).toLong, r) }
   }
 
-  val trainingFilterFn: RDD[(Long, Rating)] => RDD[Rating]  = { rs =>
+  val trainingFilter: RDD[(Long, Rating)] => RDD[Rating]  = { rs =>
     rs.filter(x => x._1 <= 3)
       .values
       .repartition(numPartitions)
       .cache
   }
-  //val fn: (RDD[(Long, Rating)]) => RDD[Rating] = trainingFilterFn _
+  //val fn: (RDD[(Long, Rating)]) => RDD[Rating] = trainingFilter _
 
-  def validationFilterFn(rs: RDD[(Long, Rating)]): RDD[Rating]  = {
+  def validationFilter(rs: RDD[(Long, Rating)]): RDD[Rating]  = {
     rs.filter(x => x._1 == 4)
       .values
       .repartition(numPartitions)
       .cache
   }
 
-  def testingFilterFn(rs: RDD[(Long, Rating)]): RDD[Rating]  = {
+  def testingFilter(rs: RDD[(Long, Rating)]): RDD[Rating]  = {
     rs.filter(x => x._1 == 5)
       .values
       .cache
   }
 
-  def train: (RDD[Rating], RDD[Rating]) =>  MatrixFactorizationModel = { (validation, training) =>
+  def train: (RDD[Rating], RDD[Rating]) =>  MatrixFactorizationModel = {
+    (validation, training) =>
+
     val ranks = List(12)
     val lambdas = List(0.1, 10.0)
     val numIters = List(10)
@@ -170,8 +173,6 @@ object Functions {
     var bestRank = 0
     var bestLambda = -1.0
     var bestNumIter = -1
-
-    val numValidation = validation.count
 
     for (rank <- ranks; lambda <- lambdas; numIter <- numIters) {
       val model = ALS.train(training, rank, numIter, lambda)
