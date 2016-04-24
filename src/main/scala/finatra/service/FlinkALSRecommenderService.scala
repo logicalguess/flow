@@ -30,8 +30,6 @@ case class FlinkALSRecommenderService @Inject()(dataProvider: DataProvider) exte
 
   def getRecommendationsForUser(userId: Int, count: Int) = {
 
-    val userId = {userId}
-    val model = {model}
     val products = dataProvider.getProductNames
 
     val candidates: (Map[Int, String]) => DataSet[Int] = {

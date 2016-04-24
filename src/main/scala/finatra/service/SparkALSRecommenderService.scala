@@ -27,9 +27,7 @@ case class SparkALSRecommenderService @Inject()(sc: SparkContext, dataProvider: 
 
   def getRecommendationsForUser(userId: Int, count: Int) = {
 
-    val userId = {userId}
     val sparkContext = {sc}
-    val model = {model}
     val products = dataProvider.getProductNames
 
     val candidates: (SparkContext, Map[Int, String]) => RDD[Int] = {
